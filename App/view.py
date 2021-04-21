@@ -33,11 +33,18 @@ Presenta el menu de opciones y por cada seleccion
 se hace la solicitud al controlador para ejecutar la
 operación solicitada
 """
+content_file = 'context_content_features-small.csv'
 
 def printMenu():
     print("Bienvenido")
+    print("0- Crear catalogo")
     print("1- Cargar información en el catálogo")
-    print("2- ")
+    print("2- Caracterizar las reproducciones")
+    print("3- Encontrar música para festejar")
+    print("4- Encontrar música para estudiar")
+    print("5- Estudiar los géneros musicales")
+    print("6- Indicar el género musical más escuchado en el tiempo")
+    print("7- Salir")
 
 catalog = None
 
@@ -47,10 +54,34 @@ Menu principal
 while True:
     printMenu()
     inputs = input('Seleccione una opción para continuar\n')
-    if int(inputs[0]) == 1:
+
+    if int(inputs[0]) == 0:
         print("Cargando información de los archivos ....")
+        cont = controller.init()
+
+    elif int(inputs[0]) == 1:
+        controller.loadData(cont, content_file)
+        print('Registros cargados: ' + str(controller.content_size(cont)))
+        print('Artistas únicos cargados:' + str(controller.artist_amount(cont)))
+        #tracks = controller.track_values(cont)
+        # tracks_amount = 
+        controller.unique_tracks_id(cont)
+        # print('Tracks únicos cargados' + str(tracks_amount))
+
 
     elif int(inputs[0]) == 2:
+        pass
+
+    elif int(inputs[0]) == 3:
+        pass
+
+    elif int(inputs[0]) == 4:
+        pass
+
+    elif int(inputs[0]) == 5:
+        pass
+
+    elif int(inputs[0]) == 6:
         pass
 
     else:
