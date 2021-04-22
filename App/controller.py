@@ -54,12 +54,10 @@ def loadData(analyzer, content_file):
 def artist_amount(analyzer):
     return model.artist_amount(analyzer)
 
+def tracks_amount(analyzer):
+    return model.tracks_amount(analyzer)
+
 def content_size(analyzer):
     return model.content_size(analyzer)
 
-def track_values(analyzer):
-    return model.track_values(analyzer)
-
-def unique_tracks_id(lst_values):
-    return model.unique_tracks_id(lst_values)
 # Funciones de ordenamiento

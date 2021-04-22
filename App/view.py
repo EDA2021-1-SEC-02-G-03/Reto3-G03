@@ -37,14 +37,14 @@ content_file = 'context_content_features-small.csv'
 
 def printMenu():
     print("Bienvenido")
-    print("0- Crear catalogo")
-    print("1- Cargar información en el catálogo")
-    print("2- Caracterizar las reproducciones")
-    print("3- Encontrar música para festejar")
-    print("4- Encontrar música para estudiar")
-    print("5- Estudiar los géneros musicales")
-    print("6- Indicar el género musical más escuchado en el tiempo")
-    print("7- Salir")
+    print("1- Crear catalogo")
+    print("2- Cargar información en el catálogo")
+    print("3- Caracterizar las reproducciones")
+    print("4- Encontrar música para festejar")
+    print("5- Encontrar música para estudiar")
+    print("6- Estudiar los géneros musicales")
+    print("7- Indicar el género musical más escuchado en el tiempo")
+    print("0- Salir")
 
 catalog = None
 
@@ -55,25 +55,30 @@ while True:
     printMenu()
     inputs = input('Seleccione una opción para continuar\n')
 
-    if int(inputs[0]) == 0:
+    if int(inputs[0]) == 1:
         print("Cargando información de los archivos ....")
         cont = controller.init()
 
-    elif int(inputs[0]) == 1:
+    elif int(inputs[0]) == 2:
         controller.loadData(cont, content_file)
         print('Registros cargados: ' + str(controller.content_size(cont)))
         print('Artistas únicos cargados:' + str(controller.artist_amount(cont)))
         #tracks = controller.track_values(cont)
-        # tracks_amount = 
-        controller.unique_tracks_id(cont)
-        # print('Tracks únicos cargados' + str(tracks_amount))
+        # tracks_amount = controller.unique_tracks_id(cont)
+        print('Tracks únicos cargados: ' + str(controller.tracks_amount(cont)))
 
-
-    elif int(inputs[0]) == 2:
-        pass
 
     elif int(inputs[0]) == 3:
-        pass
+        #La estructura de datos que se escogió
+        #para avanzar en la solución del requerimienot 1
+        #fue un árbol de tipo RBT
+        input('Ingrese la característica de contenido\n')
+        input('Ingrese el valor mínimo de la característica de contenido\n')
+        input('Ingrese el valor máximo de la careacterística de contenido\n')
+
+        print('La altura del arbol es: ' + str(controller.tracks_amount(cont)))
+        print('La cantidad de elementos son: ' + str(controller.content_size(cont)))
+        
 
     elif int(inputs[0]) == 4:
         pass
@@ -82,6 +87,9 @@ while True:
         pass
 
     elif int(inputs[0]) == 6:
+        pass
+
+    elif int(inputs[0]) == 7:
         pass
 
     else:

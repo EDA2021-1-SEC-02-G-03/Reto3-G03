@@ -44,19 +44,23 @@ def newAnalyzer():
 
     analyzer = {'content_features': None,
                 'track_hashtag': None,
-                'Sentiment_values':None
+                'Sentiment_values':None,
+                'artist_id_index':None,
+                'track_id_index':None,
                 }
 
     analyzer['content_features'] = lt.newList('ARRAY_LIST')
     analyzer['track_hashtag'] = lt.newList('ARRAY_LIST')
     analyzer['Sentiment_values'] = lt.newList('ARRAY_LIST')
     analyzer['artist_id_index'] = om.newMap(omaptype='RBT')
+    analyzer['track_id_index'] = om.newMap(omaptype='RBT')
     return analyzer
 # Funciones para agregar informacion al catalogo
 
 def addContent(analyzer, content):
     lt.addLast(analyzer['content_features'], content)
     updateArtistId(analyzer['artist_id_index'], content)
+    updateTrackId(analyzer['track_id_index'], content)
     return analyzer
     
 def updateArtistId(map, content):
@@ -71,6 +75,18 @@ def updateArtistId(map, content):
     addArtistIndex(artist_entry, content)
     return map    
 
+def updateTrackId(map, content):
+    track_id = content['track_id']
+    entry = om.get(map, track_id)
+    if entry is None:
+        track_entry = newTrackEntry(content)
+        om.put(map, track_id, track_entry)
+    else:
+        track_entry = me.getValue(entry)
+    #addTrackIndex(track_entry, content)
+    lt.addLast(track_entry['lstContent'], content)
+    return map
+
 def addArtistIndex(artist_entry, content):
     entry_content = mp.get(artist_entry['lstContent'], content['track_id'])
     if entry_content is None:
@@ -82,7 +98,6 @@ def addArtistIndex(artist_entry, content):
         lt.addLast(entry['lstContentTrack'], content)
     return artist_entry
 
-
 def newArtistEntry(content):
 
     entry = {'artist_id': None, 'lstContent':None}
@@ -90,6 +105,12 @@ def newArtistEntry(content):
     entry['lstContent'] = mp.newMap(numelements=30,
                                     maptype='PROBING',
                                     loadfactor=0.5)
+    return entry
+
+def newTrackEntry(content):
+    entry = {'track_id': None, 'lstContent':None}
+    entry['track_id'] = content['track_id']
+    entry['lstContent'] = lt.newList('ARRAY_LIST')
     return entry
 
 def newTrackId(track_id, content):
@@ -105,28 +126,31 @@ def newTrackId(track_id, content):
 def artist_amount(analyzer):
     return om.size(analyzer['artist_id_index'])
 
+def tracks_amount(analyzer):
+    return om.size(analyzer['track_id_index'])
+
 def content_size(analyzer):
     return lt.size(analyzer['content_features'])
 
 # def track_values(analyzer):
 #     return om.valueSet(analyzer['artist_id_index'])
 
-def unique_tracks_id(analyzer):
-    tracks = 0
-    lst_values = om.valueSet(analyzer['artist_id_index'])
-    # for element in range(lt.size(lst_values)):
-    #     map_values = lt.getElement(lst_values, element)
-    #     #amount = me.size(map_values)
-    #     print(map_values)
-    #     tracks += 1
-    #     if tracks >= 3:
-    #         break
-    for element in lt.iterator(lst_values):
-        maps = element['lstContent']
-        
-        #tracks += int(mp.size(element))
-        #print(element)
-    return tracks
+# def unique_tracks_id(analyzer):
+#     tracks = 0
+#     lst_values = om.valueSet(analyzer['artist_id_index'])
+#     # for element in range(lt.size(lst_values)):
+#     #     map_values = lt.getElement(lst_values, element)
+#     #     #amount = me.size(map_values)
+#     #     print(map_values)
+#     #     tracks += 1
+#     #     if tracks >= 3:
+#     #         break
+#     for element in lt.iterator(lst_values):
+#         maps = element['lstContent']
+
+#         #tracks += int(mp.size(element))
+#         #print(element)
+#     return tracks
 # Funciones utilizadas para comparar elementos dentro de una lista
 
 # Funciones de ordenamiento
