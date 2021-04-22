@@ -42,6 +42,7 @@ def init():
 def loadData(analyzer, content_file):
 
     content_file = cf.data_dir + content_file
+    #Aquí se genera el error, no encuentra el archivo
     input_file = csv.DictReader(open(content_file, encoding="utf-8"), delimiter=",")
 
     for content in input_file:
