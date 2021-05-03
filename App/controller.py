@@ -54,7 +54,7 @@ def loadData(analyzer, content_file):
 def content_size(analyzer):
     return model.content_size(analyzer)
 
-def getArtistByCategory(analyzer, min_value, max_value):
-    return model.getArtistByCategory(analyzer, min_value, max_value)
+def R_1(feature, analyzer, min_value, max_value):
+    return model.R_1(feature, analyzer, min_value, max_value)
 
 # Funciones de ordenamiento

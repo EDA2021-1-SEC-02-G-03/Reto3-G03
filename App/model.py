@@ -76,62 +76,84 @@ def addContent(analyzer, content):
     lt.addLast(analyzer['content_features'], content)
 
     #Update Binary Trees
-    updateInstrumental(analyzer['instrumentalness'], content)
-    # updateLiveness(analyzer['liveness'], content)
-    # updateSpeechiness(analyzer['speechiness'], content)
-    # updateDanceabilitiy(analyzer['danceability'], content)
-    # updateValence(analyzer['valence'], content)
-    # updateAcousticness(analyzer['acousticness'], content)
-    # updateEnergy(analyzer['energy'], content)
+    updateDescriptionMaps(analyzer['instrumentalness'], content, 'instrumentalness')
+    updateDescriptionMaps(analyzer['liveness'], content, 'liveness')
+    updateDescriptionMaps(analyzer['speechiness'], content, 'speechiness')
+    updateDescriptionMaps(analyzer['danceability'], content, 'danceability')
+    updateDescriptionMaps(analyzer['valence'], content, 'valence')
+    updateDescriptionMaps(analyzer['acousticness'], content, 'acousticness')
+    updateDescriptionMaps(analyzer['energy'], content, 'energy')
 
     return analyzer
     
-def updateInstrumental(map, content):
-    #Se revisa el valor que va a ser llave de un nodo
-    Instrumental_value = float(content['instrumentalness'])
-    #Vemos si algún nodo ya tiene este valor
-    entry = om.get(map, Instrumental_value)
-    if entry is None:
-        #Creamos la estructura del nodo que tendra como llave 
-        #El valor de instrumentalidad visto previamente
-        instrumental_entry = newInstrumentEntry(content)
-        #Este valor se agraga al nodo y nos queda la siguiente estructura
-        #Un nodo {Key-"Valor_Instrumentalidad":Valor-Mapa}
-        #El mapa que esta como valor del nodo tiene la siguiente estructura
-        #{Key-Artista_id:Valor-Lista con contendio del mismo artista}
-        om.put(map, Instrumental_value, instrumental_entry)
-    else:
-        instrumental_entry = me.getValue(entry)
-    #lt.addLast(instrumental_entry['lstContent'], content)
-    addInstrumentalIndex(instrumental_entry, content)
-    return map    
+def updateDescriptionMaps(map, content, feature):
+    # #Se revisa el valor que va a ser llave de un nodo
+    # Instrumental_value = float(content['instrumentalness'])
+    # #Vemos si algún nodo ya tiene este valor
+    # entry = om.get(map, Instrumental_value)
+    # if entry is None:
+    #     #Creamos la estructura del nodo que tendra como llave 
+    #     #El valor de instrumentalidad visto previamente
+    #     instrumental_entry = newInstrumentEntry(content)
+    #     #Este valor se agraga al nodo y nos queda la siguiente estructura
+    #     #Un nodo {Key-"Valor_Instrumentalidad":Valor-Mapa}
+    #     #El mapa que esta como valor del nodo tiene la siguiente estructura
+    #     #{Key-Artista_id:Valor-Lista con contendio del mismo artista}
+    #     om.put(map, Instrumental_value, instrumental_entry)
+    # else:
+    #     instrumental_entry = me.getValue(entry)
+    # #lt.addLast(instrumental_entry['lstContent'], content)
+    # addInstrumentalIndex(instrumental_entry, content)
+    # return map    
+    Instrumental_value = float(content[feature])
+    #artist = content['artist_id']
+    exist_value = om.contains(map, Instrumental_value)
 
-def addInstrumentalIndex(Instrumental_entry, content):
-    entry_content = mp.get(Instrumental_entry['lstContent'], content['artist_id'])
-    if (entry_content is None):
-        entry = newArtist(content)
-        lt.addLast(entry['instrumental_content'], content)
-        mp.put(Instrumental_entry['lstContent'], content['artist_id'], entry)
+    if exist_value:
+        entry = om.get(map, Instrumental_value)
+        actual_value = me.getValue(entry)
     else:
-        entry = me.getValue(entry_content)
-        lt.addLast(entry['instrumental_content'], content)
-    return Instrumental_entry
+        actual_value = newInstrumentEntry(content, Instrumental_value)
+        om.put(map, Instrumental_value, actual_value)
+    lt.addLast(actual_value['lstContent'], content)
+    
+    # exist_artist = mp.contains(actual_value['lstContent'], artist)
 
-def newInstrumentEntry(content):
+    # if exist_artist:
+    #     entry_art = mp.get(actual_value['lstContent'], artist)
+    #     actual_artist = me.getValue(entry_art)
+    # else:
+    #     actual_artist = newArtist(content)
+    #     mp.put(actual_value['lstContent'], artist, actual_artist)
+    # lt.addLast(actual_artist['instrumental_content'], content)
+
+
+
+# def addInstrumentalIndex(Instrumental_entry, content):
+#     entry_content = mp.get(Instrumental_entry['lstContent'], content['artist_id'])
+#     if (entry_content is None):
+#         entry = newArtist(content)
+#         mp.put(Instrumental_entry['lstContent'], content['artist_id'], entry)
+#     else:
+#         entry = me.getValue(entry_content)
+#     lt.addLast(entry['instrumental_content'], content)
+#     return Instrumental_entry
+
+def newInstrumentEntry(content, Instrumental_value):
 
     entry = {'Instrument_value': None, 'lstContent':None}
-    entry['Instrument_value'] = float(content['instrumentalness'])
-    entry['lstContent'] = mp.newMap(numelements=100,
-                                    maptype='PROBING',
-                                    loadfactor=0.3)
-    #entry['lstContent'] = lt.newList('ARRAY_LIST')
+    entry['Instrument_value'] = Instrumental_value
+    # entry['lstContent'] = mp.newMap(numelements=65,
+    #                                 maptype='PROBING',
+    #                                 loadfactor=0.5)
+    entry['lstContent'] = lt.newList('ARRAY_LIST')
     return entry
 
-def newArtist(content):
-    ofentry = {'Artist_id':None, 'instrumental_content':None}
-    ofentry['Artist_id'] = content['artist_id']
-    ofentry['instrumental_content'] = lt.newList('ARRAY_LIST')
-    return ofentry
+# def newArtist(content):
+#     ofentry = {'Artist_id':None, 'instrumental_content':None}
+#     ofentry['Artist_id'] = content['artist_id']
+#     ofentry['instrumental_content'] = lt.newList('ARRAY_LIST')
+#     return ofentry
 
 # Funciones para creacion de datos
 
@@ -140,25 +162,33 @@ def newArtist(content):
 def content_size(analyzer):
     return lt.size(analyzer['content_features'])
 
-def getArtistByCategory(analyzer, min_value, max_value):
-    lst = om.values(analyzer['instrumentalness'], min_value, max_value)
+def R_1(feature, analyzer, min_value, max_value):
+    lst = om.values(analyzer[feature], min_value, max_value)
     total_artists, total_songs = 0, 0
-    pruebas = []
+    #pruebas = []
+    #print(lt.getElement(lst, 3))
+    unique_artists = lt.newList('ARRAY_LIST')
     for artist in lt.iterator(lst):
-        normal_brother = []
+        total_artists += 1
+        #normal_brother = []
         #total_artists += lt.size(mp.keySet(artist['lstContent']))
         # if total_artists >= 7:
         #     print(mp.keySet(artist['lstContent']))
             #break
-        for artists in lt.iterator(mp.keySet(artist['lstContent'])):
-            normal_brother.append(artists)
-        pruebas.append(normal_brother)
-
-        for songs in lt.iterator(mp.valueSet(artist['lstContent'])):
-            total_songs += lt.size(songs['instrumental_content'])
+        total_songs += lt.size(artist['lstContent'])
+        for artists in lt.iterator(artist['lstContent']):
+            if not lt.isPresent(unique_artists, artists['artist_id']):
+                 lt.addLast(unique_artists, artists['artist_id'])
+        # for artists in lt.iterator(mp.keySet(artist['lstContent'])):
+        #     normal_brother.append(artists)
+        # pruebas.append(normal_brother)
+        # for songs in lt.iterator(mp.valueSet(artist['lstContent'])):
+        #     total_songs += lt.size(songs['instrumental_content'])
         #total_songs += lt.size(mp.valueSet(artist['lstContent']))
         # total_songs += mp.size(me.getValue())
-    return total_artists, total_songs, pruebas
+        total_artists = lt.size(unique_artists)
+
+    return total_artists, total_songs#, pruebas
     
 
 # def track_values(analyzer):

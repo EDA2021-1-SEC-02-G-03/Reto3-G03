@@ -72,32 +72,33 @@ while True:
         #La estructura de datos que se escogió
         #para avanzar en la solución del requerimienot 1
         #fue un árbol de tipo RBT
-        caracteristica = input('Ingrese la característica de contenido\n')
+        feature = input('Ingrese la característica de contenido\n')
         min_value = float(input('Ingrese el valor mínimo de la característica de contenido\n'))
         max_value = float(input('Ingrese el valor máximo de la careacterística de contenido\n'))
 
-        artist_amount = controller.getArtistByCategory(cont, min_value, max_value)
+        artist_amount = controller.R_1(feature, cont, min_value, max_value)
         #print('La altura del arbol es: ' + str(controller.tracks_amount(cont)))
         #print('La cantidad de elementos son: ' + str(controller.content_size(cont)))
         print(artist_amount[0], artist_amount[1])
         glitter = []
         counter = 0
-        for i in artist_amount[2][7]:
-            counter += 1
-            if i not in glitter:
-                glitter.append(i)
-        print(counter, len(glitter))
-        #======================
-        #Solución Python Normal
-        #======================
-        # bad_list = []
-        # counter = 0
-        # for track in lt.iterator(cont['content_features']):
-        #     if float(track['instrumentalness']) >= 0.75 and float(track['instrumentalness']) <= 1.0: # and track['artist_id'] not in bad_list:
-        #         counter += 1
-        #         bad_list.append(track['artist_id'])
-        # print(len(bad_list))
-        # print(counter)
+        # for i in artist_amount[2][7]:
+        #     counter += 1
+        #     if i not in glitter:
+        #         glitter.append(i)
+        # print(counter, len(glitter))
+        #====================================|
+        #Comprobador Resultados Python Normal|
+        #====================================|
+        bad_list = []
+        counter = 0
+        for track in lt.iterator(cont['content_features']):
+            if float(track[feature]) >= min_value and float(track[feature]) <= max_value:
+                counter += 1
+                if track['artist_id'] not in bad_list:
+                    bad_list.append(track['artist_id'])
+        print(len(bad_list))
+        print(counter)
 
     elif int(inputs[0]) == 4:
         pass
