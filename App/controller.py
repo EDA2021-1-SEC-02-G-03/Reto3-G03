@@ -51,13 +51,10 @@ def loadData(analyzer, content_file):
 
 # Funciones de consulta sobre el catálogo
 
-def artist_amount(analyzer):
-    return model.artist_amount(analyzer)
-
-def tracks_amount(analyzer):
-    return model.tracks_amount(analyzer)
-
 def content_size(analyzer):
     return model.content_size(analyzer)
+
+def getArtistByCategory(analyzer, min_value, max_value):
+    return model.getArtistByCategory(analyzer, min_value, max_value)
 
 # Funciones de ordenamiento

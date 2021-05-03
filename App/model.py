@@ -45,92 +45,121 @@ def newAnalyzer():
     analyzer = {'content_features': None,
                 'track_hashtag': None,
                 'Sentiment_values':None,
-                'artist_id_index':None,
-                'track_id_index':None,
+                'instrumentalness':None,
+                'liveness':None,
+                'speechiness':None,
+                'danceability':None,
+                'valence':None,
+                'acousticness':None,
+                'energy':None,
                 }
 
+    #Lists
     analyzer['content_features'] = lt.newList('ARRAY_LIST')
     analyzer['track_hashtag'] = lt.newList('ARRAY_LIST')
     analyzer['Sentiment_values'] = lt.newList('ARRAY_LIST')
-    analyzer['artist_id_index'] = om.newMap(omaptype='RBT')
-    analyzer['track_id_index'] = om.newMap(omaptype='RBT')
+
+    #Binary Trees
+    analyzer['instrumentalness'] = om.newMap(omaptype='BST')
+    analyzer['liveness'] = om.newMap(omaptype='BST')
+    analyzer['speechiness'] = om.newMap(omaptype='BST')
+    analyzer['danceability'] = om.newMap(omaptype='BST')
+    analyzer['valence'] = om.newMap(omaptype='BST')
+    analyzer['acousticness'] = om.newMap(omaptype='BST')
+    analyzer['energy'] = om.newMap(omaptype='BST')
+
+
     return analyzer
 # Funciones para agregar informacion al catalogo
 
 def addContent(analyzer, content):
     lt.addLast(analyzer['content_features'], content)
-    updateArtistId(analyzer['artist_id_index'], content)
-    updateTrackId(analyzer['track_id_index'], content)
+
+    #Update Binary Trees
+    updateInstrumental(analyzer['instrumentalness'], content)
+    # updateLiveness(analyzer['liveness'], content)
+    # updateSpeechiness(analyzer['speechiness'], content)
+    # updateDanceabilitiy(analyzer['danceability'], content)
+    # updateValence(analyzer['valence'], content)
+    # updateAcousticness(analyzer['acousticness'], content)
+    # updateEnergy(analyzer['energy'], content)
+
     return analyzer
     
-def updateArtistId(map, content):
-
-    artist_id = content['artist_id']
-    entry = om.get(map, artist_id)
+def updateInstrumental(map, content):
+    #Se revisa el valor que va a ser llave de un nodo
+    Instrumental_value = float(content['instrumentalness'])
+    #Vemos si algún nodo ya tiene este valor
+    entry = om.get(map, Instrumental_value)
     if entry is None:
-        artist_entry = newArtistEntry(content)
-        om.put(map, artist_id, artist_entry)
+        #Creamos la estructura del nodo que tendra como llave 
+        #El valor de instrumentalidad visto previamente
+        instrumental_entry = newInstrumentEntry(content)
+        #Este valor se agraga al nodo y nos queda la siguiente estructura
+        #Un nodo {Key-"Valor_Instrumentalidad":Valor-Mapa}
+        #El mapa que esta como valor del nodo tiene la siguiente estructura
+        #{Key-Artista_id:Valor-Lista con contendio del mismo artista}
+        om.put(map, Instrumental_value, instrumental_entry)
     else:
-        artist_entry = me.getValue(entry)
-    addArtistIndex(artist_entry, content)
+        instrumental_entry = me.getValue(entry)
+    #lt.addLast(instrumental_entry['lstContent'], content)
+    addInstrumentalIndex(instrumental_entry, content)
     return map    
 
-def updateTrackId(map, content):
-    track_id = content['track_id']
-    entry = om.get(map, track_id)
-    if entry is None:
-        track_entry = newTrackEntry(content)
-        om.put(map, track_id, track_entry)
-    else:
-        track_entry = me.getValue(entry)
-    #addTrackIndex(track_entry, content)
-    lt.addLast(track_entry['lstContent'], content)
-    return map
-
-def addArtistIndex(artist_entry, content):
-    entry_content = mp.get(artist_entry['lstContent'], content['track_id'])
-    if entry_content is None:
-        entry = newTrackId(content['track_id'], content)
-        lt.addLast(entry['lstContentTrack'], content)
-        mp.put(artist_entry['lstContent'], content['track_id'], entry)
+def addInstrumentalIndex(Instrumental_entry, content):
+    entry_content = mp.get(Instrumental_entry['lstContent'], content['artist_id'])
+    if (entry_content is None):
+        entry = newArtist(content)
+        lt.addLast(entry['instrumental_content'], content)
+        mp.put(Instrumental_entry['lstContent'], content['artist_id'], entry)
     else:
         entry = me.getValue(entry_content)
-        lt.addLast(entry['lstContentTrack'], content)
-    return artist_entry
+        lt.addLast(entry['instrumental_content'], content)
+    return Instrumental_entry
 
-def newArtistEntry(content):
+def newInstrumentEntry(content):
 
-    entry = {'artist_id': None, 'lstContent':None}
-    entry['artist_id'] = content['artist_id']
-    entry['lstContent'] = mp.newMap(numelements=30,
+    entry = {'Instrument_value': None, 'lstContent':None}
+    entry['Instrument_value'] = float(content['instrumentalness'])
+    entry['lstContent'] = mp.newMap(numelements=100,
                                     maptype='PROBING',
-                                    loadfactor=0.5)
+                                    loadfactor=0.3)
+    #entry['lstContent'] = lt.newList('ARRAY_LIST')
     return entry
 
-def newTrackEntry(content):
-    entry = {'track_id': None, 'lstContent':None}
-    entry['track_id'] = content['track_id']
-    entry['lstContent'] = lt.newList('ARRAY_LIST')
-    return entry
-
-def newTrackId(track_id, content):
-    entry = {'track_id':None, 'lstContentTrack':None}
-    entry['track_id'] = track_id
-    entry['lstContentTrack'] = lt.newList('ARRAY_LIST')
-    return entry
+def newArtist(content):
+    ofentry = {'Artist_id':None, 'instrumental_content':None}
+    ofentry['Artist_id'] = content['artist_id']
+    ofentry['instrumental_content'] = lt.newList('ARRAY_LIST')
+    return ofentry
 
 # Funciones para creacion de datos
 
 # Funciones de consulta
 
-def artist_amount(analyzer):
-    return om.size(analyzer['artist_id_index'])
-
-def tracks_amount(analyzer):
-    return om.size(analyzer['track_id_index'])
-
 def content_size(analyzer):
     return lt.size(analyzer['content_features'])
+
+def getArtistByCategory(analyzer, min_value, max_value):
+    lst = om.values(analyzer['instrumentalness'], min_value, max_value)
+    total_artists, total_songs = 0, 0
+    pruebas = []
+    for artist in lt.iterator(lst):
+        normal_brother = []
+        #total_artists += lt.size(mp.keySet(artist['lstContent']))
+        # if total_artists >= 7:
+        #     print(mp.keySet(artist['lstContent']))
+            #break
+        for artists in lt.iterator(mp.keySet(artist['lstContent'])):
+            normal_brother.append(artists)
+        pruebas.append(normal_brother)
+
+        for songs in lt.iterator(mp.valueSet(artist['lstContent'])):
+            total_songs += lt.size(songs['instrumental_content'])
+        #total_songs += lt.size(mp.valueSet(artist['lstContent']))
+        # total_songs += mp.size(me.getValue())
+    return total_artists, total_songs, pruebas
+    
 
 # def track_values(analyzer):
 #     return om.valueSet(analyzer['artist_id_index'])
