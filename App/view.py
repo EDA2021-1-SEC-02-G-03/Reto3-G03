@@ -90,22 +90,51 @@ while True:
         #====================================|
         #Comprobador Resultados Python Normal|
         #====================================|
-        bad_list = []
-        counter = 0
-        for track in lt.iterator(cont['content_features']):
-            if float(track[feature]) >= min_value and float(track[feature]) <= max_value:
-                counter += 1
-                if track['artist_id'] not in bad_list:
-                    bad_list.append(track['artist_id'])
-        print(len(bad_list))
-        print(counter)
+        # bad_list = []
+        # counter = 0
+        # for track in lt.iterator(cont['content_features']):
+        #     if float(track[feature]) >= min_value and float(track[feature]) <= max_value:
+        #         counter += 1
+        #         if track['artist_id'] not in bad_list:
+        #             bad_list.append(track['artist_id'])
+        # print(len(bad_list))
+        # print(counter)
 
     elif int(inputs[0]) == 4:
-        pass
+        min_value1 = float(input('Ingrese el valor mínimo de la característica Energy\n'))
+        max_value1 = float(input('Ingrese el valor máximo de la careacterística Energy\n'))
+        min_value2 = float(input('Ingrese el valor mínimo de la característica Danceability\n'))
+        max_value2 = float(input('Ingrese el valor máximo de la careacterística Danceability\n'))
+        unique_tracks = controller.R_2('energy', 'danceability', cont, min_value1, 
+        max_value1, min_value2, max_value2)
+        random_tracks = controller.random_selector(unique_tracks[1])
+        # unique_tracks = controller.R_2('energy', 'danceability', cont, 0.50, 
+        # 0.75, 0.75, 1.0)
+        print('++++ Req No. 2 results ++++')
+        print('Total of unique tracks in the events: ' +str(unique_tracks[0]))
+        print('|=== Unique track id ===|')
+        for track in lt.iterator(random_tracks):
+            #print(track['track_id'])
+            print('Track id: '+str(track['track_id']) +str(' with instrumentalness of ')+str(track['energy'])+str(' and tempo of ')+str(track['danceability']))
+        print('')
 
     elif int(inputs[0]) == 5:
-        pass
-
+        min_value1 = float(input('Ingrese el valor mínimo del rango para energy\n'))
+        max_value1 = float(input('Ingrese el valor máximo del rango para energy\n'))
+        min_value2 = float(input('Ingrese el valor mínimo del rango para danceability\n'))
+        max_value2 = float(input('Ingrese el valor máximo del rango para danceability\n'))
+        unique_tracks = controller.R_2('instrumentalness', 'tempo', cont, min_value1, 
+        max_value1, min_value2, max_value2)
+        random_tracks = controller.random_selector(unique_tracks[1]) 
+        # unique_tracks = controller.R_2('instrumentalness', 'tempo', cont, 0.6, 
+        # 0.9, 40, 60)
+        print('++++ Req No. 3 results ++++')
+        print('Total of unique tracks in the events: ' +str(unique_tracks[0]))
+        print('|=== Unique track id ===|')
+        for track in lt.iterator(random_tracks):
+            #print(track['track_id'])
+            print('Track id: '+str(track['track_id']) +str(' with instrumentalness of ')+str(track['instrumentalness'])+str(' and tempo of ')+str(track['tempo']))
+        print('')
     elif int(inputs[0]) == 6:
         pass
 

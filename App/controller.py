@@ -57,4 +57,11 @@ def content_size(analyzer):
 def R_1(feature, analyzer, min_value, max_value):
     return model.R_1(feature, analyzer, min_value, max_value)
 
+def R_2(feature_1, feature_2, analyzer, min_value1, 
+    max_value1, min_value2, max_value2):
+    return model.R_2(feature_1, feature_2, analyzer, min_value1, 
+    max_value1, min_value2, max_value2)
+
+def random_selector(lst):
+    return model.random_selector(lst)
 # Funciones de ordenamiento

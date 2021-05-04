@@ -26,6 +26,7 @@
 
 
 import config as cf
+import random
 from DISClib.ADT import list as lt
 from DISClib.ADT import orderedmap as om
 from DISClib.ADT import map as mp
@@ -168,8 +169,9 @@ def R_1(feature, analyzer, min_value, max_value):
     #pruebas = []
     #print(lt.getElement(lst, 3))
     unique_artists = lt.newList('ARRAY_LIST')
+    tracks = lt.newList('ARRAY_LIST')
     for artist in lt.iterator(lst):
-        total_artists += 1
+        #total_artists += 1
         #normal_brother = []
         #total_artists += lt.size(mp.keySet(artist['lstContent']))
         # if total_artists >= 7:
@@ -179,6 +181,7 @@ def R_1(feature, analyzer, min_value, max_value):
         for artists in lt.iterator(artist['lstContent']):
             if not lt.isPresent(unique_artists, artists['artist_id']):
                  lt.addLast(unique_artists, artists['artist_id'])
+            lt.addLast(tracks, artists)
         # for artists in lt.iterator(mp.keySet(artist['lstContent'])):
         #     normal_brother.append(artists)
         # pruebas.append(normal_brother)
@@ -188,8 +191,41 @@ def R_1(feature, analyzer, min_value, max_value):
         # total_songs += mp.size(me.getValue())
         total_artists = lt.size(unique_artists)
 
-    return total_artists, total_songs#, pruebas
-    
+    return total_artists, total_songs, lst, tracks#, pruebas
+
+def R_2(feature_1, feature_2, analyzer, min_value1, 
+    max_value1, min_value2, max_value2):
+    content_f1 = R_1(feature_1, analyzer, min_value1, max_value1)[3]
+    #content_f2 = R_1(feature_2, analyzer, min_value2, max_value2)[3]
+    randomness = lt.newList('ARRAY_LIST')
+    unique_tracks = lt.newList('ARRAY_LIST')
+    #print(lt.size(content_f2))
+    for content in lt.iterator(content_f1):
+        #try:
+        if float(content[feature_2]) >= min_value2 and float(content[feature_2]) <= max_value2:
+        
+        #if lt.isPresent(content_f2, content['track_id']):
+        #     print('yas')
+            if not lt.isPresent(unique_tracks, content['track_id']):
+                lt.addLast(unique_tracks, content['track_id'])
+                lt.addLast(randomness, content)
+        #except:
+        #    pass
+    return lt.size(unique_tracks), randomness
+
+def random_selector(lst):
+    random_lst = lt.newList('ARRAY_LIST')
+    random_content = lt.newList('ARRAY_LIST')
+    find_number = True
+    for i in range(5):
+        while find_number:
+            random_num = random.randint(0, lt.size(random_lst))
+            if not lt.isPresent(random_lst, random_num):
+                lt.addLast(random_lst, random_num)
+                find_number = False
+        find_number = True
+        lt.addLast(random_content, lt.getElement(lst, random_num))
+    return random_content
 
 # def track_values(analyzer):
 #     return om.valueSet(analyzer['artist_id_index'])
