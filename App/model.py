@@ -26,6 +26,7 @@
 
 
 import config as cf
+import random
 from DISClib.ADT import list as lt
 from DISClib.ADT import orderedmap as om
 from DISClib.ADT import map as mp
@@ -45,92 +46,302 @@ def newAnalyzer():
     analyzer = {'content_features': None,
                 'track_hashtag': None,
                 'Sentiment_values':None,
-                'artist_id_index':None,
-                'track_id_index':None,
+                'instrumentalness':None,
+                'liveness':None,
+                'speechiness':None,
+                'danceability':None,
+                'valence':None,
+                'acousticness':None,
+                'energy':None,
+                'Nombre_generos':None
                 }
 
+    #Lists
     analyzer['content_features'] = lt.newList('ARRAY_LIST')
     analyzer['track_hashtag'] = lt.newList('ARRAY_LIST')
     analyzer['Sentiment_values'] = lt.newList('ARRAY_LIST')
-    analyzer['artist_id_index'] = om.newMap(omaptype='RBT')
-    analyzer['track_id_index'] = om.newMap(omaptype='RBT')
+
+    #Binary Trees
+    analyzer['instrumentalness'] = om.newMap(omaptype='BST')
+    analyzer['liveness'] = om.newMap(omaptype='BST')
+    analyzer['speechiness'] = om.newMap(omaptype='BST')
+    analyzer['danceability'] = om.newMap(omaptype='BST')
+    analyzer['valence'] = om.newMap(omaptype='BST')
+    analyzer['acousticness'] = om.newMap(omaptype='BST')
+    analyzer['energy'] = om.newMap(omaptype='BST')
+
+    analyzer['artistas'] = om.newMap(omaptype='BST')
+
+    #Binary Trees para generos
+    analyzer['generos'] = om.newMap(omaptype='BST')
+    analyzer['Reggae'] = mp.newMap(numelements=65,
+                                   maptype='PROBING',
+                                   loadfactor=0.3)
+    analyzer['Down-tempo'] = mp.newMap(numelements=65,
+                                   maptype='PROBING',
+                                   loadfactor=0.3)
+    analyzer['Chill-out'] = mp.newMap(numelements=65,
+                                   maptype='PROBING',
+                                   loadfactor=0.3)
+    analyzer['Hip-hop'] = mp.newMap(numelements=65,
+                                   maptype='PROBING',
+                                   loadfactor=0.3)
+    analyzer['Jazz and Funk'] = mp.newMap(numelements=65,
+                                   maptype='PROBING',
+                                   loadfactor=0.3)
+    analyzer['Pop'] = mp.newMap(numelements=65,
+                                   maptype='PROBING',
+                                   loadfactor=0.3)
+    analyzer['R&B'] = mp.newMap(numelements=65,
+                                   maptype='PROBING',
+                                   loadfactor=0.3)
+    analyzer['Rock'] = mp.newMap(numelements=65,
+                                   maptype='PROBING',
+                                   loadfactor=0.3)
+    analyzer['Metal'] = mp.newMap(numelements=65,
+                                   maptype='PROBING',
+                                   loadfactor=0.3)
+    #Lista para generos                                   
+    analyzer['Nombre_generos'] = lt.newList('ARRAY_LIST')
+    analyzer['generos_tempos'] = mp.newMap(numelements=65,
+                                   maptype='PROBING',
+                                   loadfactor=0.3)
+
     return analyzer
+
+#lista para generos
+# genero={'Nombre_genero':None}
+# generos['Nombre_generos'] = lt.newList('ARRAY_LIST')
+
 # Funciones para agregar informacion al catalogo
 
 def addContent(analyzer, content):
     lt.addLast(analyzer['content_features'], content)
-    updateArtistId(analyzer['artist_id_index'], content)
-    updateTrackId(analyzer['track_id_index'], content)
+
+    #Update Binary Trees
+    updateDescriptionMaps(analyzer['instrumentalness'], content, 'instrumentalness')
+    updateDescriptionMaps(analyzer['liveness'], content, 'liveness')
+    updateDescriptionMaps(analyzer['speechiness'], content, 'speechiness')
+    updateDescriptionMaps(analyzer['danceability'], content, 'danceability')
+    updateDescriptionMaps(analyzer['valence'], content, 'valence')
+    updateDescriptionMaps(analyzer['acousticness'], content, 'acousticness')
+    updateDescriptionMaps(analyzer['energy'], content, 'energy')
+
+    #Update Binary Tree
+    updateGeneralGeneros(analyzer['generos'], content)
+    updateGeneros(analyzer['Reggae'], content, 60, 90)
+    updateGeneros(analyzer['Down-tempo'], content, 70, 100)
+    updateGeneros(analyzer['Chill-out'], content, 90, 120)
+    updateGeneros(analyzer['Hip-hop'], content, 85, 115)
+    updateGeneros(analyzer['Jazz and Funk'], content, 120, 125)
+    updateGeneros(analyzer['Pop'], content, 100, 130)
+    updateGeneros(analyzer['R&B'], content, 60, 80)
+    updateGeneros(analyzer['Rock'], content, 110, 140)
+    updateGeneros(analyzer['Metal'], content, 100, 160)    
+
     return analyzer
     
-def updateArtistId(map, content):
+def updateDescriptionMaps(map, content, feature):
+    # #Se revisa el valor que va a ser llave de un nodo
+    # Instrumental_value = float(content['instrumentalness'])
+    # #Vemos si algún nodo ya tiene este valor
+    # entry = om.get(map, Instrumental_value)
+    # if entry is None:
+    #     #Creamos la estructura del nodo que tendra como llave 
+    #     #El valor de instrumentalidad visto previamente
+    #     instrumental_entry = newInstrumentEntry(content)
+    #     #Este valor se agraga al nodo y nos queda la siguiente estructura
+    #     #Un nodo {Key-"Valor_Instrumentalidad":Valor-Mapa}
+    #     #El mapa que esta como valor del nodo tiene la siguiente estructura
+    #     #{Key-Artista_id:Valor-Lista con contendio del mismo artista}
+    #     om.put(map, Instrumental_value, instrumental_entry)
+    # else:
+    #     instrumental_entry = me.getValue(entry)
+    # #lt.addLast(instrumental_entry['lstContent'], content)
+    # addInstrumentalIndex(instrumental_entry, content)
+    # return map    
+    Instrumental_value = float(content[feature])
+    #artist = content['artist_id']
+    exist_value = om.contains(map, Instrumental_value)
 
-    artist_id = content['artist_id']
-    entry = om.get(map, artist_id)
+    if exist_value:
+        entry = om.get(map, Instrumental_value)
+        actual_value = me.getValue(entry)
+    else:
+        actual_value = newInstrumentEntry(content, Instrumental_value)
+        om.put(map, Instrumental_value, actual_value)
+    lt.addLast(actual_value['lstContent'], content)
+    
+    # exist_artist = mp.contains(actual_value['lstContent'], artist)
+
+    # if exist_artist:
+    #     entry_art = mp.get(actual_value['lstContent'], artist)
+    #     actual_artist = me.getValue(entry_art)
+    # else:
+    #     actual_artist = newArtist(content)
+    #     mp.put(actual_value['lstContent'], artist, actual_artist)
+    # lt.addLast(actual_artist['instrumental_content'], content)
+
+
+
+# def addInstrumentalIndex(Instrumental_entry, content):
+#     entry_content = mp.get(Instrumental_entry['lstContent'], content['artist_id'])
+#     if (entry_content is None):
+#         entry = newArtist(content)
+#         mp.put(Instrumental_entry['lstContent'], content['artist_id'], entry)
+#     else:
+#         entry = me.getValue(entry_content)
+#     lt.addLast(entry['instrumental_content'], content)
+#     return Instrumental_entry
+
+def updateGeneralGeneros(map, content):
+    Tempo_value = float(content['tempo'])
+    entry = om.get(map, Tempo_value)
     if entry is None:
-        artist_entry = newArtistEntry(content)
-        om.put(map, artist_id, artist_entry)
+        actual_value = newTempo(content)
+        om.put(map, Tempo_value, actual_value)
     else:
-        artist_entry = me.getValue(entry)
-    addArtistIndex(artist_entry, content)
-    return map    
+        actual_value = me.getValue(entry)
+    lt.addLast(actual_value['lstContent'], content)
 
-def updateTrackId(map, content):
-    track_id = content['track_id']
-    entry = om.get(map, track_id)
-    if entry is None:
-        track_entry = newTrackEntry(content)
-        om.put(map, track_id, track_entry)
-    else:
-        track_entry = me.getValue(entry)
-    #addTrackIndex(track_entry, content)
-    lt.addLast(track_entry['lstContent'], content)
-    return map
+def updateGeneros(map, content, min_tempo, max_tempo):
+    Tempo_value = float(content['tempo'])
+    if Tempo_value >= min_tempo and Tempo_value <= max_tempo:
+        entry = mp.get(map, content['artist_id'])
+        if entry is None:
+            actual_value = newArtist(content)
+            mp.put(map, content['artist_id'], actual_value)
+        else:
+            actual_value = me.getValue(entry)
+        lt.addLast(actual_value['lstContent'], content)
 
-def addArtistIndex(artist_entry, content):
-    entry_content = mp.get(artist_entry['lstContent'], content['track_id'])
-    if entry_content is None:
-        entry = newTrackId(content['track_id'], content)
-        lt.addLast(entry['lstContentTrack'], content)
-        mp.put(artist_entry['lstContent'], content['track_id'], entry)
-    else:
-        entry = me.getValue(entry_content)
-        lt.addLast(entry['lstContentTrack'], content)
-    return artist_entry
+def newInstrumentEntry(content, Instrumental_value):
 
-def newArtistEntry(content):
-
-    entry = {'artist_id': None, 'lstContent':None}
-    entry['artist_id'] = content['artist_id']
-    entry['lstContent'] = mp.newMap(numelements=30,
-                                    maptype='PROBING',
-                                    loadfactor=0.5)
-    return entry
-
-def newTrackEntry(content):
-    entry = {'track_id': None, 'lstContent':None}
-    entry['track_id'] = content['track_id']
+    entry = {'Instrument_value': None, 'lstContent':None}
+    entry['Instrument_value'] = Instrumental_value
+    # entry['lstContent'] = mp.newMap(numelements=65,
+    #                                 maptype='PROBING',
+    #                                 loadfactor=0.5)
     entry['lstContent'] = lt.newList('ARRAY_LIST')
     return entry
 
-def newTrackId(track_id, content):
-    entry = {'track_id':None, 'lstContentTrack':None}
-    entry['track_id'] = track_id
-    entry['lstContentTrack'] = lt.newList('ARRAY_LIST')
+def newTempo(content):
+
+    entry = {'Tempo_value':None, 'lstContent':None}
+    entry['Tempo_value'] = float(content['tempo'])
+    entry['lstContent'] = lt.newList('ARRAY_LIST')
     return entry
+
+def newArtist(content):
+    entry = {'Artist_id':None, 'lstContent':None}
+    entry['Artist_id'] = content['artist_id']
+    entry['lstContent'] = mp.newMap(numelements=65,
+                                   maptype='PROBING',
+                                   loadfactor=0.3)
+    return entry
+
+# def newArtist(content):
+#     ofentry = {'Artist_id':None, 'instrumental_content':None}
+#     ofentry['Artist_id'] = content['artist_id']
+#     ofentry['instrumental_content'] = lt.newList('ARRAY_LIST')
+#     return ofentry
 
 # Funciones para creacion de datos
 
 # Funciones de consulta
 
-def artist_amount(analyzer):
-    return om.size(analyzer['artist_id_index'])
-
-def tracks_amount(analyzer):
-    return om.size(analyzer['track_id_index'])
-
 def content_size(analyzer):
     return lt.size(analyzer['content_features'])
+
+def R_1(feature, analyzer, min_value, max_value):
+    lst = om.values(analyzer[feature], min_value, max_value)
+    total_artists, total_songs = 0, 0
+    #pruebas = []
+    #print(lt.getElement(lst, 3))
+    unique_artists = lt.newList('ARRAY_LIST')
+    tracks = lt.newList('ARRAY_LIST')
+    for artist in lt.iterator(lst):
+        #total_artists += 1
+        #normal_brother = []
+        #total_artists += lt.size(mp.keySet(artist['lstContent']))
+        # if total_artists >= 7:
+        #     print(mp.keySet(artist['lstContent']))
+            #break
+        total_songs += lt.size(artist['lstContent'])
+        for artists in lt.iterator(artist['lstContent']):
+            if not lt.isPresent(unique_artists, artists['artist_id']):
+                 lt.addLast(unique_artists, artists['artist_id'])
+            lt.addLast(tracks, artists)
+        # for artists in lt.iterator(mp.keySet(artist['lstContent'])):
+        #     normal_brother.append(artists)
+        # pruebas.append(normal_brother)
+        # for songs in lt.iterator(mp.valueSet(artist['lstContent'])):
+        #     total_songs += lt.size(songs['instrumental_content'])
+        #total_songs += lt.size(mp.valueSet(artist['lstContent']))
+        # total_songs += mp.size(me.getValue())
+        total_artists = lt.size(unique_artists)
+
+    return total_artists, total_songs, lst, tracks#, pruebas
+
+def R_2y3(feature_1, feature_2, analyzer, min_value1, 
+    max_value1, min_value2, max_value2):
+    content_f1 = R_1(feature_1, analyzer, min_value1, max_value1)[3]
+    #content_f2 = R_1(feature_2, analyzer, min_value2, max_value2)[3]
+    randomness = lt.newList('ARRAY_LIST')
+    unique_tracks = lt.newList('ARRAY_LIST')
+    #print(lt.size(content_f2))
+    for content in lt.iterator(content_f1):
+        #try:
+        if float(content[feature_2]) >= min_value2 and float(content[feature_2]) <= max_value2:
+        
+        #if lt.isPresent(content_f2, content['track_id']):
+        #     print('yas')
+            if not lt.isPresent(unique_tracks, content['track_id']):
+                lt.addLast(unique_tracks, content['track_id'])
+                lt.addLast(randomness, content)
+        #except:
+        #    pass
+    return lt.size(unique_tracks), randomness
+
+def R_4(analyzer, genero):
+    # lst = om.values(analyzer['generos'], 60, 90)
+    artist_10 = lt.newList('ARRAY_LIST')
+    total_songs, artists = 0, 0
+    # for reps in lt.iterator(lst):
+    #     total_songs += lt.size(reps['lstContent'])
+    total_artists = mp.size(analyzer[genero])
+
+    for songs in lt.iterator(mp.valueSet(analyzer[genero])):
+        total_songs += lt.size(songs['lstContent'])
+        artists += 1
+        if artists <= 10:
+            artist_id = lt.getElement(songs['lstContent'], 1)
+            lt.addLast(artist_10, artist_id['artist_id'])
+
+    return total_artists, total_songs, artist_10
+
+def addNewGenero(analyzer, genero):
+    lt.addLast(analyzer['Nombre_generos'], genero)
+
+def addNewGenero_Tempo(analyzer, genero, min_tempo, max_tempo):
+    tempos = lt.newList('ARRAY_LIST')
+    lt.addLast(tempos, min_tempo)
+    lt.addLast(tempos, max_tempo)
+    mp.put(analyzer['generos_tempos'], genero, tempos)
+
+def random_selector(lst):
+    random_lst = lt.newList('ARRAY_LIST')
+    random_content = lt.newList('ARRAY_LIST')
+    find_number = True
+    for i in range(5):
+        while find_number:
+            random_num = random.randint(0, lt.size(random_lst))
+            if not lt.isPresent(random_lst, random_num):
+                lt.addLast(random_lst, random_num)
+                find_number = False
+        find_number = True
+        lt.addLast(random_content, lt.getElement(lst, random_num))
+    return random_content
 
 # def track_values(analyzer):
 #     return om.valueSet(analyzer['artist_id_index'])
@@ -151,6 +362,9 @@ def content_size(analyzer):
 #         #tracks += int(mp.size(element))
 #         #print(element)
 #     return tracks
+
+#Añadiendo los generos predeterminados a la lista de generos
+
 # Funciones utilizadas para comparar elementos dentro de una lista
 
 # Funciones de ordenamiento
