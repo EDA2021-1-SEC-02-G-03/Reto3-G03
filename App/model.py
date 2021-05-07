@@ -53,6 +53,7 @@ def newAnalyzer():
                 'valence':None,
                 'acousticness':None,
                 'energy':None,
+                'Nombre_generos':None
                 }
 
     #Lists
@@ -71,18 +72,18 @@ def newAnalyzer():
 
     analyzer['artistas'] = om.newMap(omaptype='BST')
 
-    #Binary Tree para generos
+    #Binary Trees para generos
     analyzer['generos'] = om.newMap(omaptype='BST')
     analyzer['Reggae'] = mp.newMap(numelements=65,
                                    maptype='PROBING',
                                    loadfactor=0.3)
-    analyzer['Down_tempo'] = mp.newMap(numelements=65,
+    analyzer['Down-tempo'] = mp.newMap(numelements=65,
                                    maptype='PROBING',
                                    loadfactor=0.3)
-    analyzer['Chill_out'] = mp.newMap(numelements=65,
+    analyzer['Chill-out'] = mp.newMap(numelements=65,
                                    maptype='PROBING',
                                    loadfactor=0.3)
-    analyzer['Hip_hop'] = mp.newMap(numelements=65,
+    analyzer['Hip-hop'] = mp.newMap(numelements=65,
                                    maptype='PROBING',
                                    loadfactor=0.3)
     analyzer['Jazz and Funk'] = mp.newMap(numelements=65,
@@ -100,7 +101,17 @@ def newAnalyzer():
     analyzer['Metal'] = mp.newMap(numelements=65,
                                    maptype='PROBING',
                                    loadfactor=0.3)
+    #Lista para generos                                   
+    analyzer['Nombre_generos'] = lt.newList('ARRAY_LIST')
+    analyzer['generos_tempos'] = mp.newMap(numelements=65,
+                                   maptype='PROBING',
+                                   loadfactor=0.3)
+
     return analyzer
+
+#lista para generos
+# genero={'Nombre_genero':None}
+# generos['Nombre_generos'] = lt.newList('ARRAY_LIST')
 
 # Funciones para agregar informacion al catalogo
 
@@ -119,14 +130,14 @@ def addContent(analyzer, content):
     #Update Binary Tree
     updateGeneralGeneros(analyzer['generos'], content)
     updateGeneros(analyzer['Reggae'], content, 60, 90)
-    updateGeneros(analyzer['Down_tempo'], content, 70, 100)
-    updateGeneros(analyzer['Chill_out'], content, 90, 120)
-    updateGeneros(analyzer['Hip_hop'], content, 85, 115)
+    updateGeneros(analyzer['Down-tempo'], content, 70, 100)
+    updateGeneros(analyzer['Chill-out'], content, 90, 120)
+    updateGeneros(analyzer['Hip-hop'], content, 85, 115)
     updateGeneros(analyzer['Jazz and Funk'], content, 120, 125)
     updateGeneros(analyzer['Pop'], content, 100, 130)
     updateGeneros(analyzer['R&B'], content, 60, 80)
     updateGeneros(analyzer['Rock'], content, 110, 140)
-    updateGeneros(analyzer['Metal'], content, 100, 160)
+    updateGeneros(analyzer['Metal'], content, 100, 160)    
 
     return analyzer
     
@@ -292,15 +303,31 @@ def R_2y3(feature_1, feature_2, analyzer, min_value1,
         #    pass
     return lt.size(unique_tracks), randomness
 
-def R_4(analyzer):
+def R_4(analyzer, genero):
     # lst = om.values(analyzer['generos'], 60, 90)
-    # total_songs = 0
+    artist_10 = lt.newList('ARRAY_LIST')
+    total_songs, artists = 0, 0
     # for reps in lt.iterator(lst):
     #     total_songs += lt.size(reps['lstContent'])
-    total_songs = mp.size(analyzer['Reggae'])
+    total_artists = mp.size(analyzer[genero])
 
-    return total_songs
+    for songs in lt.iterator(mp.valueSet(analyzer[genero])):
+        total_songs += lt.size(songs['lstContent'])
+        artists += 1
+        if artists <= 10:
+            artist_id = lt.getElement(songs['lstContent'], 1)
+            lt.addLast(artist_10, artist_id['artist_id'])
 
+    return total_artists, total_songs, artist_10
+
+def addNewGenero(analyzer, genero):
+    lt.addLast(analyzer['Nombre_generos'], genero)
+
+def addNewGenero_Tempo(analyzer, genero, min_tempo, max_tempo):
+    tempos = lt.newList('ARRAY_LIST')
+    lt.addLast(tempos, min_tempo)
+    lt.addLast(tempos, max_tempo)
+    mp.put(analyzer['generos_tempos'], genero, tempos)
 
 def random_selector(lst):
     random_lst = lt.newList('ARRAY_LIST')
@@ -335,6 +362,9 @@ def random_selector(lst):
 #         #tracks += int(mp.size(element))
 #         #print(element)
 #     return tracks
+
+#Añadiendo los generos predeterminados a la lista de generos
+
 # Funciones utilizadas para comparar elementos dentro de una lista
 
 # Funciones de ordenamiento

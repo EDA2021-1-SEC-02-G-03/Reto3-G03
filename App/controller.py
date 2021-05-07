@@ -49,6 +49,27 @@ def loadData(analyzer, content_file):
         model.addContent(analyzer, content)
     return analyzer
 
+def loadListGeneros(analyzer):
+    addNewGenero(analyzer, 'Reggae')
+    addNewGenero(analyzer, 'Down-tempo')
+    addNewGenero(analyzer, 'Chill-out')
+    addNewGenero(analyzer, 'Hip-hop')
+    addNewGenero(analyzer, 'Jazz and Funk')
+    addNewGenero(analyzer, 'Pop')
+    addNewGenero(analyzer, 'R&B')
+    addNewGenero(analyzer, 'Rock')
+    addNewGenero(analyzer, 'Metal') 
+
+def loadListTempos(analyzer):
+    addNewGenero_Tempo(analyzer, 'Reggae', 60, 90)
+    addNewGenero_Tempo(analyzer, 'Down-tempo', 70, 100)
+    addNewGenero_Tempo(analyzer, 'Chill-out', 90, 120)
+    addNewGenero_Tempo(analyzer, 'Hip-hop', 85, 115)
+    addNewGenero_Tempo(analyzer, 'Jazz and Funk', 120, 125)
+    addNewGenero_Tempo(analyzer, 'Pop', 100, 130)
+    addNewGenero_Tempo(analyzer, 'R&B', 60, 80)
+    addNewGenero_Tempo(analyzer, 'Rock', 110, 140)
+    addNewGenero_Tempo(analyzer, 'Metal', 100, 160)
 # Funciones de consulta sobre el catálogo
 
 def content_size(analyzer):
@@ -62,9 +83,15 @@ def R_2y3(feature_1, feature_2, analyzer, min_value1,
     return model.R_2y3(feature_1, feature_2, analyzer, min_value1, 
     max_value1, min_value2, max_value2)
 
-def R_4(analyzer):
-    return model.R_4(analyzer)
+def R_4(analyzer, genero):
+    return model.R_4(analyzer, genero)
 
 def random_selector(lst):
     return model.random_selector(lst)
+
+def addNewGenero(analyzer, genero):
+    return model.addNewGenero(analyzer, genero)
+
+def addNewGenero_Tempo(analyzer, genero, min_tempo, max_tempo):
+    return model.addNewGenero_Tempo(analyzer, genero, min_tempo, max_tempo)
 # Funciones de ordenamiento

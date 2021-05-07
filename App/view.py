@@ -46,6 +46,29 @@ def printMenu():
     print("7- Indicar el género musical más escuchado en el tiempo")
     print("0- Salir")
 
+def printGeneros(lst):
+    number = 0
+    print('')
+    print('|=================|')
+    print('|-----Generos-----|')
+    print('|=================|')
+    for elements in lt.iterator(lst):
+        number += 1
+        print(' _________________')
+        print('|'+str(number) + '.' + elements)
+
+def printGenerosData(genero, total_artist, total_songs,
+ artist_10, min_tempo, max_tempo):
+    num = 0
+    print('======= '+genero.upper()+' =======')
+    print('For '+genero+' the tempo is between '+str(min_tempo)+' and '+
+    str(max_tempo)+' BPM')
+    print(genero +' reproductions: ' + str(total_songs)+' with '+
+    str(total_artist)+' different artists')
+    print('----- Some artists for '+genero+' -----')
+    for artist in lt.iterator(artist_10):
+        num += 1
+        print('Artist '+str(num)+': '+artist)
 catalog = None
 
 """
@@ -58,6 +81,8 @@ while True:
     if int(inputs[0]) == 1:
         print("Cargando información de los archivos ....")
         cont = controller.init()
+        controller.loadListGeneros(cont)
+        controller.loadListTempos(cont)
 
     elif int(inputs[0]) == 2:
         controller.loadData(cont, content_file)
@@ -136,8 +161,33 @@ while True:
             print('Track id: '+str(track['track_id']) +str(' with instrumentalness of ')+str(track['instrumentalness'])+str(' and tempo of ')+str(track['tempo']))
         print('')
     elif int(inputs[0]) == 6:
-        songs_reggae = controller.R_4(cont)
-        print(songs_reggae)
+        printGeneros(cont['Nombre_generos'])
+        print('')
+        print('Escoja una de las siguientes opciones:')
+        num = input('1. Escribir los numeros de los generos que desea buscar\n2. Agregar un nuevo genero musical\n')
+        if num == '1':
+            num_generos = input('Escriba los numeros de los generos que desea buscar, separe los números por comas\n'+
+            'Ej.:1 2 3\n')
+            generos = num_generos.split(' ')
+            for num in generos:
+                genero = lt.getElement(cont['Nombre_generos'], int(num))
+                #print(controller.R_4(cont, genero))
+                min_tempo = 60
+                max_tempo = 90
+                printing_data = controller.R_4(cont, genero)
+                printGenerosData(genero, printing_data[0], printing_data[1],
+                printing_data[2], min_tempo, max_tempo)
+        elif num == '2':
+            nuevo_genero = input('Nombre único para el nuevo género musical')
+            min_value = input('Valor mínimo del Tempo del nuevo género musical')
+            max_value = input('Valor máximo del Tempo del nuevo género musical')
+
+
+        #lt.addLast(cont['Nombre_generos'], 'Carro')
+        #controller.addNewGenero(cont, 'Camilo_Juan')
+        #print(cont['Nombre_generos'])
+        #songs_reggae = controller.R_4(cont, genero)
+        #print(songs_reggae)
 
     elif int(inputs[0]) == 7:
         pass
