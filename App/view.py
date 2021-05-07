@@ -105,7 +105,7 @@ while True:
         max_value1 = float(input('Ingrese el valor máximo de la careacterística Energy\n'))
         min_value2 = float(input('Ingrese el valor mínimo de la característica Danceability\n'))
         max_value2 = float(input('Ingrese el valor máximo de la careacterística Danceability\n'))
-        unique_tracks = controller.R_2('energy', 'danceability', cont, min_value1, 
+        unique_tracks = controller.R_2y3('energy', 'danceability', cont, min_value1, 
         max_value1, min_value2, max_value2)
         random_tracks = controller.random_selector(unique_tracks[1])
         # unique_tracks = controller.R_2('energy', 'danceability', cont, 0.50, 
@@ -123,7 +123,7 @@ while True:
         max_value1 = float(input('Ingrese el valor máximo del rango para energy\n'))
         min_value2 = float(input('Ingrese el valor mínimo del rango para danceability\n'))
         max_value2 = float(input('Ingrese el valor máximo del rango para danceability\n'))
-        unique_tracks = controller.R_2('instrumentalness', 'tempo', cont, min_value1, 
+        unique_tracks = controller.R_2y3('instrumentalness', 'tempo', cont, min_value1, 
         max_value1, min_value2, max_value2)
         random_tracks = controller.random_selector(unique_tracks[1]) 
         # unique_tracks = controller.R_2('instrumentalness', 'tempo', cont, 0.6, 
@@ -136,7 +136,8 @@ while True:
             print('Track id: '+str(track['track_id']) +str(' with instrumentalness of ')+str(track['instrumentalness'])+str(' and tempo of ')+str(track['tempo']))
         print('')
     elif int(inputs[0]) == 6:
-        pass
+        songs_reggae = controller.R_4(cont)
+        print(songs_reggae)
 
     elif int(inputs[0]) == 7:
         pass

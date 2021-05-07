@@ -69,8 +69,39 @@ def newAnalyzer():
     analyzer['acousticness'] = om.newMap(omaptype='BST')
     analyzer['energy'] = om.newMap(omaptype='BST')
 
+    analyzer['artistas'] = om.newMap(omaptype='BST')
 
+    #Binary Tree para generos
+    analyzer['generos'] = om.newMap(omaptype='BST')
+    analyzer['Reggae'] = mp.newMap(numelements=65,
+                                   maptype='PROBING',
+                                   loadfactor=0.3)
+    analyzer['Down_tempo'] = mp.newMap(numelements=65,
+                                   maptype='PROBING',
+                                   loadfactor=0.3)
+    analyzer['Chill_out'] = mp.newMap(numelements=65,
+                                   maptype='PROBING',
+                                   loadfactor=0.3)
+    analyzer['Hip_hop'] = mp.newMap(numelements=65,
+                                   maptype='PROBING',
+                                   loadfactor=0.3)
+    analyzer['Jazz and Funk'] = mp.newMap(numelements=65,
+                                   maptype='PROBING',
+                                   loadfactor=0.3)
+    analyzer['Pop'] = mp.newMap(numelements=65,
+                                   maptype='PROBING',
+                                   loadfactor=0.3)
+    analyzer['R&B'] = mp.newMap(numelements=65,
+                                   maptype='PROBING',
+                                   loadfactor=0.3)
+    analyzer['Rock'] = mp.newMap(numelements=65,
+                                   maptype='PROBING',
+                                   loadfactor=0.3)
+    analyzer['Metal'] = mp.newMap(numelements=65,
+                                   maptype='PROBING',
+                                   loadfactor=0.3)
     return analyzer
+
 # Funciones para agregar informacion al catalogo
 
 def addContent(analyzer, content):
@@ -84,6 +115,18 @@ def addContent(analyzer, content):
     updateDescriptionMaps(analyzer['valence'], content, 'valence')
     updateDescriptionMaps(analyzer['acousticness'], content, 'acousticness')
     updateDescriptionMaps(analyzer['energy'], content, 'energy')
+
+    #Update Binary Tree
+    updateGeneralGeneros(analyzer['generos'], content)
+    updateGeneros(analyzer['Reggae'], content, 60, 90)
+    updateGeneros(analyzer['Down_tempo'], content, 70, 100)
+    updateGeneros(analyzer['Chill_out'], content, 90, 120)
+    updateGeneros(analyzer['Hip_hop'], content, 85, 115)
+    updateGeneros(analyzer['Jazz and Funk'], content, 120, 125)
+    updateGeneros(analyzer['Pop'], content, 100, 130)
+    updateGeneros(analyzer['R&B'], content, 60, 80)
+    updateGeneros(analyzer['Rock'], content, 110, 140)
+    updateGeneros(analyzer['Metal'], content, 100, 160)
 
     return analyzer
     
@@ -140,6 +183,27 @@ def updateDescriptionMaps(map, content, feature):
 #     lt.addLast(entry['instrumental_content'], content)
 #     return Instrumental_entry
 
+def updateGeneralGeneros(map, content):
+    Tempo_value = float(content['tempo'])
+    entry = om.get(map, Tempo_value)
+    if entry is None:
+        actual_value = newTempo(content)
+        om.put(map, Tempo_value, actual_value)
+    else:
+        actual_value = me.getValue(entry)
+    lt.addLast(actual_value['lstContent'], content)
+
+def updateGeneros(map, content, min_tempo, max_tempo):
+    Tempo_value = float(content['tempo'])
+    if Tempo_value >= min_tempo and Tempo_value <= max_tempo:
+        entry = mp.get(map, content['artist_id'])
+        if entry is None:
+            actual_value = newArtist(content)
+            mp.put(map, content['artist_id'], actual_value)
+        else:
+            actual_value = me.getValue(entry)
+        lt.addLast(actual_value['lstContent'], content)
+
 def newInstrumentEntry(content, Instrumental_value):
 
     entry = {'Instrument_value': None, 'lstContent':None}
@@ -148,6 +212,21 @@ def newInstrumentEntry(content, Instrumental_value):
     #                                 maptype='PROBING',
     #                                 loadfactor=0.5)
     entry['lstContent'] = lt.newList('ARRAY_LIST')
+    return entry
+
+def newTempo(content):
+
+    entry = {'Tempo_value':None, 'lstContent':None}
+    entry['Tempo_value'] = float(content['tempo'])
+    entry['lstContent'] = lt.newList('ARRAY_LIST')
+    return entry
+
+def newArtist(content):
+    entry = {'Artist_id':None, 'lstContent':None}
+    entry['Artist_id'] = content['artist_id']
+    entry['lstContent'] = mp.newMap(numelements=65,
+                                   maptype='PROBING',
+                                   loadfactor=0.3)
     return entry
 
 # def newArtist(content):
@@ -193,7 +272,7 @@ def R_1(feature, analyzer, min_value, max_value):
 
     return total_artists, total_songs, lst, tracks#, pruebas
 
-def R_2(feature_1, feature_2, analyzer, min_value1, 
+def R_2y3(feature_1, feature_2, analyzer, min_value1, 
     max_value1, min_value2, max_value2):
     content_f1 = R_1(feature_1, analyzer, min_value1, max_value1)[3]
     #content_f2 = R_1(feature_2, analyzer, min_value2, max_value2)[3]
@@ -212,6 +291,16 @@ def R_2(feature_1, feature_2, analyzer, min_value1,
         #except:
         #    pass
     return lt.size(unique_tracks), randomness
+
+def R_4(analyzer):
+    # lst = om.values(analyzer['generos'], 60, 90)
+    # total_songs = 0
+    # for reps in lt.iterator(lst):
+    #     total_songs += lt.size(reps['lstContent'])
+    total_songs = mp.size(analyzer['Reggae'])
+
+    return total_songs
+
 
 def random_selector(lst):
     random_lst = lt.newList('ARRAY_LIST')
