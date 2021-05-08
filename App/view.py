@@ -34,6 +34,8 @@ se hace la solicitud al controlador para ejecutar la
 operación solicitada
 """
 content_file = 'context_content_features-small.csv'
+content_file_hash = 'user_track_hashtag_timestamp-small.csv'
+content_file_sentiment = 'sentiment_values.csv'
 
 def printMenu():
     print("Bienvenido")
@@ -81,11 +83,13 @@ while True:
     if int(inputs[0]) == 1:
         print("Cargando información de los archivos ....")
         cont = controller.init()
-        controller.loadListGeneros(cont)
-        controller.loadListTempos(cont)
 
     elif int(inputs[0]) == 2:
         controller.loadData(cont, content_file)
+        controller.loadListGeneros(cont)
+        controller.loadListTempos(cont)
+        controller.loadHashData(cont, content_file_hash)
+        controller.loadSentiment(cont, content_file_sentiment)
         print('Registros cargados: ' + str(controller.content_size(cont)))
         #print('Artistas únicos cargados:' + str(controller.artist_amount(cont)))
         #tracks = controller.track_values(cont)
@@ -190,7 +194,13 @@ while True:
         #print(songs_reggae)
 
     elif int(inputs[0]) == 7:
-        pass
+        min_hour = input('Ingrese el valor mínimo de la hora del día: ')
+        max_hour = input('Ingrese el valor máximo de la hora del día: ')
+        min_hour = controller.convertHour_to_Node(min_hour)
+        max_hour = controller.convertHour_to_Node(max_hour) 
+        print(min_hour, max_hour)
+        total_songs = controller.R_5(cont, min_hour, max_hour)
+        print(total_songs)
 
     else:
         sys.exit(0)

@@ -58,8 +58,8 @@ def newAnalyzer():
 
     #Lists
     analyzer['content_features'] = lt.newList('ARRAY_LIST')
-    analyzer['track_hashtag'] = lt.newList('ARRAY_LIST')
-    analyzer['Sentiment_values'] = lt.newList('ARRAY_LIST')
+    # analyzer['track_hashtag'] = lt.newList('ARRAY_LIST')
+    # analyzer['Sentiment_values'] = lt.newList('ARRAY_LIST')
 
     #Binary Trees
     analyzer['instrumentalness'] = om.newMap(omaptype='BST')
@@ -106,7 +106,9 @@ def newAnalyzer():
     analyzer['generos_tempos'] = mp.newMap(numelements=65,
                                    maptype='PROBING',
                                    loadfactor=0.3)
-
+    #arbol binario hash table
+    analyzer['track_hashtag'] = om.newMap(omaptype='RBT')
+    analyzer['Sentiment_values'] = om.newMap(omaptype='BST')
     return analyzer
 
 #lista para generos
@@ -117,7 +119,6 @@ def newAnalyzer():
 
 def addContent(analyzer, content):
     lt.addLast(analyzer['content_features'], content)
-
     #Update Binary Trees
     updateDescriptionMaps(analyzer['instrumentalness'], content, 'instrumentalness')
     updateDescriptionMaps(analyzer['liveness'], content, 'liveness')
@@ -139,8 +140,36 @@ def addContent(analyzer, content):
     updateGeneros(analyzer['Rock'], content, 110, 140)
     updateGeneros(analyzer['Metal'], content, 100, 160)    
 
-    return analyzer
+    #Update Binary Tree Tiem
+    updateHash(analyzer['track_hashtag'], content)
     
+    return analyzer
+
+#analyzer['Sentiment_values']
+def addContent_hash(analyzer, content):
+    #lt.addLast(analyzer['track_hashtag'], content)
+    updateHash(analyzer['track_hashtag'], content)
+
+def addSentiment(analyzer, content):
+    updateSentiment(analyzer['Sentiment_values'], content)
+
+def updateHash(map, content):
+    Hour_value = content['created_at']
+    Hour_value = convertHour_to_Node(Hour_value)
+
+    exist_value = om.contains(map, Hour_value)
+
+    if exist_value:
+        entry = om.get(map, Hour_value)
+        actual_value = me.getValue(entry)
+    else:
+        actual_value = newHourEntry(content, Hour_value)
+        om.put(map, Hour_value, actual_value)
+    lt.addLast(actual_value['lstContent'], content)
+
+def updateSentiment(map, content):
+    pass
+
 def updateDescriptionMaps(map, content, feature):
     # #Se revisa el valor que va a ser llave de un nodo
     # Instrumental_value = float(content['instrumentalness'])
@@ -240,6 +269,12 @@ def newArtist(content):
                                    loadfactor=0.3)
     return entry
 
+def newHourEntry(content, Hour_value):
+    entry = {'Hour_value':None, 'lstContent':None}
+    entry['Hour_value'] = Hour_value
+    entry['lstContent'] = lt.newList('ARRAY_LIST')
+    return entry
+
 # def newArtist(content):
 #     ofentry = {'Artist_id':None, 'instrumental_content':None}
 #     ofentry['Artist_id'] = content['artist_id']
@@ -320,6 +355,14 @@ def R_4(analyzer, genero):
 
     return total_artists, total_songs, artist_10
 
+def R_5(analyzer, min_hour, max_hour):
+    lst = om.values(analyzer['track_hashtag'], min_hour, max_hour)
+    total_songs = 0
+    for node in lt.iterator(lst):
+
+        total_songs += lt.size(node['lstContent'])
+    return total_songs 
+
 def addNewGenero(analyzer, genero):
     lt.addLast(analyzer['Nombre_generos'], genero)
 
@@ -342,6 +385,13 @@ def random_selector(lst):
         find_number = True
         lt.addLast(random_content, lt.getElement(lst, random_num))
     return random_content
+
+def convertHour_to_Node(Hour_value):
+    Hour_value = Hour_value.split(' ')
+    Hour_value = Hour_value[1]
+    Hour_value = Hour_value.split(':')
+    Hour_value = float(Hour_value[0]+'.'+Hour_value[1])
+    return Hour_value
 
 # def track_values(analyzer):
 #     return om.valueSet(analyzer['artist_id_index'])

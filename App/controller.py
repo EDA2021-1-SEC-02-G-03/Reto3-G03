@@ -42,11 +42,26 @@ def init():
 def loadData(analyzer, content_file):
 
     content_file = cf.data_dir + content_file
-    #Aquí se genera el error, no encuentra el archivo
     input_file = csv.DictReader(open(content_file, encoding="utf-8"), delimiter=",")
 
     for content in input_file:
         model.addContent(analyzer, content)
+    return analyzer
+
+def loadHashData(analyzer, content_file):
+    content_file = cf.data_dir + content_file
+    input_file = csv.DictReader(open(content_file, encoding="utf-8"), delimiter=",")
+
+    for content in input_file:
+        model.addContent_hash(analyzer, content)
+    return analyzer
+
+def loadSentiment(analyzer, content_file):
+    content_file = cf.data_dir + content_file
+    input_file = csv.DictReader(open(content_file, encoding="utf-8"), delimiter=",")
+
+    for content in input_file:
+        model.addSentiment(analyzer, content)
     return analyzer
 
 def loadListGeneros(analyzer):
@@ -86,6 +101,9 @@ def R_2y3(feature_1, feature_2, analyzer, min_value1,
 def R_4(analyzer, genero):
     return model.R_4(analyzer, genero)
 
+def R_5(analyzer, min_hour, max_hour):
+    return model.R_5(analyzer, min_hour, max_hour)
+
 def random_selector(lst):
     return model.random_selector(lst)
 
@@ -94,4 +112,7 @@ def addNewGenero(analyzer, genero):
 
 def addNewGenero_Tempo(analyzer, genero, min_tempo, max_tempo):
     return model.addNewGenero_Tempo(analyzer, genero, min_tempo, max_tempo)
+
+def convertHour_to_Node(Hour_value):
+    return model.convertHour_to_Node(Hour_value)
 # Funciones de ordenamiento
