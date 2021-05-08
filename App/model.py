@@ -41,6 +41,9 @@ los mismos.
 
 # Construccion de modelos
 
+def newAnalyzer2():
+    analyzer = {'created_at':None}
+
 def newAnalyzer():
 
     analyzer = {'content_features': None,
@@ -58,10 +61,12 @@ def newAnalyzer():
 
     #Lists
     analyzer['content_features'] = lt.newList('ARRAY_LIST')
+    #analyzer['content_features_req5'] = lt.newList('ARRAY_LIST')
     analyzer['track_hashtag'] = lt.newList('ARRAY_LIST')
     analyzer['Sentiment_values'] = lt.newList('ARRAY_LIST')
 
     #Binary Trees
+    analyzer['time_of_event'] = om.newMap(omaptype='BST')
     analyzer['instrumentalness'] = om.newMap(omaptype='BST')
     analyzer['liveness'] = om.newMap(omaptype='BST')
     analyzer['speechiness'] = om.newMap(omaptype='BST')
@@ -109,9 +114,45 @@ def newAnalyzer():
 
     return analyzer
 
-#lista para generos
-# genero={'Nombre_genero':None}
-# generos['Nombre_generos'] = lt.newList('ARRAY_LIST')
+'''
+def modify_content_features(analyzer):
+    analyzer['content_features_req5']=analyzer['content_features']
+    for i in lt.iterator(analyzer['content_features_req5']):
+        lt.getElement()
+'''
+
+def updateTimeOfEvent(omap,content):
+    time = content['created_at']
+    newtime = time[11:17]+'00'
+    entry = om.get(omap,newtime)
+    if entry is None:
+        timeentry=newTimeEntry(content)
+        om.put(omap,newtime,timeentry)
+    else:
+        timeentry=me.getValue(entry)
+    addTimeIndex(timeentry,content)
+
+def addTimeIndex(timeentry,content):
+    lst=timeentry['lstContent']
+    lt.addLast(lst,content)
+
+
+def newTimeEntry(content):
+    entry={'created_at':None,'lstContent':None}
+    entry['created_at']=content['created_at'][12:18]+'00'
+    entry['lstContent']=lt.newList('ARRAY_LIST')
+    return entry 
+
+def requerimiento_5(analyzer,start_time,end_time):
+    videos=om.values(analyzer['time_of_event'],start_time,end_time)
+    reps=0
+    for element in lt.iterator(videos):
+        reps+=lt.size(element['lstContent'])
+
+    print(reps)
+
+
+
 
 # Funciones para agregar informacion al catalogo
 
@@ -138,6 +179,7 @@ def addContent(analyzer, content):
     updateGeneros(analyzer['R&B'], content, 60, 80)
     updateGeneros(analyzer['Rock'], content, 110, 140)
     updateGeneros(analyzer['Metal'], content, 100, 160)    
+    updateTimeOfEvent(analyzer['time_of_event'], content)
 
     return analyzer
     

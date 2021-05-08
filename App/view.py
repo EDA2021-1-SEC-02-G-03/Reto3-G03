@@ -23,6 +23,7 @@
 import config as cf
 import sys
 import controller
+import model
 from DISClib.ADT import list as lt
 from DISClib.DataStructures import bst as bst
 from DISClib.ADT import map as mp
@@ -37,6 +38,7 @@ se hace la solicitud al controlador para ejecutar la
 operación solicitada
 """
 content_file = 'context_content_features-small.csv'
+hashtags_file = 'user_track_hashtag_timestamp-small.csv'
 
 def printMenu():
     print("Bienvenido")
@@ -86,57 +88,24 @@ while True:
         cont = controller.init()
         controller.loadListGeneros(cont)
         controller.loadListTempos(cont)
+        hasht = controller.init()
 
     elif int(inputs[0]) == 2:
         controller.loadData(cont, content_file)
         print('Registros cargados: ' + str(controller.content_size(cont)))
-        #print(mp.keySet(cont["Rock"]))
-        entry=mp.get(cont['Rock'],'6a74c8c00590f57e8907b8fef955a895')
-        print(me.getValue(entry))
-
-
-
-
-
-
-
-
-
-        #print('Artistas únicos cargados:' + str(controller.artist_amount(cont)))
-        #tracks = controller.track_values(cont)
-        # tracks_amount = controller.unique_tracks_id(cont)
-        #print('Tracks únicos cargados: ' + str(controller.tracks_amount(cont))
+        req5=model.requerimiento_5(cont,'07:15:00','09:45:00')
+        
     elif int(inputs[0]) == 3:
-        #La estructura de datos que se escogió
-        #para avanzar en la solución del requerimienot 1
-        #fue un árbol de tipo RBT
+
         feature = input('Ingrese la característica de contenido\n')
         min_value = float(input('Ingrese el valor mínimo de la característica de contenido\n'))
         max_value = float(input('Ingrese el valor máximo de la careacterística de contenido\n'))
 
         artist_amount = controller.R_1(feature, cont, min_value, max_value)
-        #print('La altura del arbol es: ' + str(controller.tracks_amount(cont)))
-        #print('La cantidad de elementos son: ' + str(controller.content_size(cont)))
         print(artist_amount[0], artist_amount[1])
         glitter = []
         counter = 0
-        # for i in artist_amount[2][7]:
-        #     counter += 1
-        #     if i not in glitter:
-        #         glitter.append(i)
-        # print(counter, len(glitter))
-        #====================================|
-        #Comprobador Resultados Python Normal|
-        #====================================|
-        # bad_list = []
-        # counter = 0
-        # for track in lt.iterator(cont['content_features']):
-        #     if float(track[feature]) >= min_value and float(track[feature]) <= max_value:
-        #         counter += 1
-        #         if track['artist_id'] not in bad_list:
-        #             bad_list.append(track['artist_id'])
-        # print(len(bad_list))
-        # print(counter)
+   
 
     elif int(inputs[0]) == 4:
         min_value1 = float(input('Ingrese el valor mínimo de la característica Energy\n'))
@@ -146,8 +115,7 @@ while True:
         unique_tracks = controller.R_2y3('energy', 'danceability', cont, min_value1, 
         max_value1, min_value2, max_value2)
         random_tracks = controller.random_selector(unique_tracks[1])
-        # unique_tracks = controller.R_2('energy', 'danceability', cont, 0.50, 
-        # 0.75, 0.75, 1.0)
+
         print('++++ Req No. 2 results ++++')
         print('Total of unique tracks in the events: ' +str(unique_tracks[0]))
         print('|=== Unique track id ===|')
