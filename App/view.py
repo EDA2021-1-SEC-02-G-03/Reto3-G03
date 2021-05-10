@@ -39,6 +39,7 @@ operación solicitada
 """
 content_file = 'context_content_features-small.csv'
 hashtags_file = 'user_track_hashtag_timestamp-small.csv'
+sentiment_values_file = 'sentiment_values.csv'
 
 def printMenu():
     print("Bienvenido")
@@ -88,12 +89,22 @@ while True:
         cont = controller.init()
         controller.loadListGeneros(cont)
         controller.loadListTempos(cont)
-        hasht = controller.init()
+        
 
     elif int(inputs[0]) == 2:
+        model.updateTempoGenero(cont['tempo_genero'])
+        controller.loadDataSentiment(cont, sentiment_values_file)
+        controller.loadDataHashTrack(cont, hashtags_file)
         controller.loadData(cont, content_file)
         print('Registros cargados: ' + str(controller.content_size(cont)))
-        req5=model.requerimiento_5(cont,'07:15:00','09:45:00')
+        
+        model.req_5_v_2(cont,'07:15:00','09:45:00')
+        
+
+
+        
+ 
+        #Terminar de implementar el requerimiento 5. El BST de VADER ya está listo: llaves son valores de VADER y valores son listas con hashtags.
         
     elif int(inputs[0]) == 3:
 
@@ -164,11 +175,6 @@ while True:
             max_value = input('Valor máximo del Tempo del nuevo género musical')
 
 
-        #lt.addLast(cont['Nombre_generos'], 'Carro')
-        #controller.addNewGenero(cont, 'Camilo_Juan')
-        #print(cont['Nombre_generos'])
-        #songs_reggae = controller.R_4(cont, genero)
-        #print(songs_reggae)
 
     elif int(inputs[0]) == 7:
         pass

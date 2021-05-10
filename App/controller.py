@@ -42,12 +42,27 @@ def init():
 def loadData(analyzer, content_file):
 
     content_file = cf.data_dir + content_file
-    #Aquí se genera el error, no encuentra el archivo
     input_file = csv.DictReader(open(content_file, encoding="utf-8"), delimiter=",")
 
     for content in input_file:
         model.addContent(analyzer, content)
     return analyzer
+
+def loadDataHashTrack(analyzer, hashtags_file):
+    hashtags_file = cf.data_dir + hashtags_file
+    input_file = csv.DictReader(open(hashtags_file, encoding='utf-8'), delimiter=',')
+
+    for content in input_file:
+        model.addContent_Hash(analyzer,content)
+    return analyzer
+
+def loadDataSentiment(analyzer, sentiment_values_file):
+    sentiment_values_file = cf.data_dir + sentiment_values_file
+    input_file = csv.DictReader(open(sentiment_values_file, encoding='utf-8'), delimiter=',')
+    for hashtag in input_file:
+        model.addContent_Sentiment(analyzer,hashtag)
+    return analyzer
+    
 
 def loadListGeneros(analyzer):
     addNewGenero(analyzer, 'Reggae')
