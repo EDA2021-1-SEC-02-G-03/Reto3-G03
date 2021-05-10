@@ -58,8 +58,8 @@ def newAnalyzer():
 
     #Lists
     analyzer['content_features'] = lt.newList('ARRAY_LIST')
-    # analyzer['track_hashtag'] = lt.newList('ARRAY_LIST')
-    # analyzer['Sentiment_values'] = lt.newList('ARRAY_LIST')
+    analyzer['track_hashtag_lst'] = lt.newList('ARRAY_LIST')
+    #analyzer['Sentiment_values_lst'] = lt.newList('ARRAY_LIST')
 
     #Binary Trees
     analyzer['instrumentalness'] = om.newMap(omaptype='BST')
@@ -109,6 +109,33 @@ def newAnalyzer():
     #arbol binario hash table
     analyzer['track_hashtag'] = om.newMap(omaptype='RBT')
     analyzer['Sentiment_values'] = om.newMap(omaptype='BST')
+
+    analyzer['ferrari'] = mp.newMap(numelements=65,
+                                   maptype='PROBING',
+                                   loadfactor=0.3)
+
+    # analyzer['avoid_reps_instrumentalness'] = mp.newMap(numelements=65,
+    #                                maptype='PROBING',
+    #                                loadfactor=0.3)
+    # analyzer['avoid_reps_liveness'] = mp.newMap(numelements=65,
+    #                                maptype='PROBING',
+    #                                loadfactor=0.3)
+    # analyzer['avoid_reps_speechiness'] = mp.newMap(numelements=65,
+    #                                maptype='PROBING',
+    #                                loadfactor=0.3)
+    # analyzer['avoid_reps_danceability'] = mp.newMap(numelements=65,
+    #                                maptype='PROBING',
+    #                                loadfactor=0.3)
+    # analyzer['avoid_reps_valence'] = mp.newMap(numelements=65,
+    #                                maptype='PROBING',
+    #                                loadfactor=0.3)
+    # analyzer['avoid_reps_acousticness'] = mp.newMap(numelements=65,
+    #                                maptype='PROBING',
+    #                                loadfactor=0.3)
+    # analyzer['avoid_reps_energy'] = mp.newMap(numelements=65,
+    #                                maptype='PROBING',
+    #                                loadfactor=0.3)
+    
     return analyzer
 
 #lista para generos
@@ -120,35 +147,57 @@ def newAnalyzer():
 def addContent(analyzer, content):
     lt.addLast(analyzer['content_features'], content)
     #Update Binary Trees
-    updateDescriptionMaps(analyzer['instrumentalness'], content, 'instrumentalness')
-    updateDescriptionMaps(analyzer['liveness'], content, 'liveness')
-    updateDescriptionMaps(analyzer['speechiness'], content, 'speechiness')
-    updateDescriptionMaps(analyzer['danceability'], content, 'danceability')
-    updateDescriptionMaps(analyzer['valence'], content, 'valence')
-    updateDescriptionMaps(analyzer['acousticness'], content, 'acousticness')
-    updateDescriptionMaps(analyzer['energy'], content, 'energy')
+    car = content['user_id']+content['track_id']+content['created_at']
 
-    #Update Binary Tree
-    updateGeneralGeneros(analyzer['generos'], content)
-    updateGeneros(analyzer['Reggae'], content, 60, 90)
-    updateGeneros(analyzer['Down-tempo'], content, 70, 100)
-    updateGeneros(analyzer['Chill-out'], content, 90, 120)
-    updateGeneros(analyzer['Hip-hop'], content, 85, 115)
-    updateGeneros(analyzer['Jazz and Funk'], content, 120, 125)
-    updateGeneros(analyzer['Pop'], content, 100, 130)
-    updateGeneros(analyzer['R&B'], content, 60, 80)
-    updateGeneros(analyzer['Rock'], content, 110, 140)
-    updateGeneros(analyzer['Metal'], content, 100, 160)    
+    cars = mp.contains(analyzer['ferrari'], car)
+    if not cars:
+        # updateDescriptionMaps(analyzer['instrumentalness'], analyzer['avoid_reps_instrumentalness'], content, 'instrumentalness')
+        # updateDescriptionMaps(analyzer['liveness'],  analyzer['avoid_reps_liveness'], content, 'liveness')
+        # updateDescriptionMaps(analyzer['speechiness'],  analyzer['avoid_reps_speechiness'],  content, 'speechiness')
+        # updateDescriptionMaps(analyzer['danceability'], analyzer['avoid_reps_danceability'], content, 'danceability')
+        # updateDescriptionMaps(analyzer['valence'],  analyzer['avoid_reps_valence'], content, 'valence')
+        # updateDescriptionMaps(analyzer['acousticness'],  analyzer['avoid_reps_acousticness'], content, 'acousticness')
+        # updateDescriptionMaps(analyzer['energy'],  analyzer['avoid_reps_energy'], content, 'energy')
+        
+        updateDescriptionMaps(analyzer['instrumentalness'], content, 'instrumentalness')
+        updateDescriptionMaps(analyzer['liveness'], content, 'liveness')
+        updateDescriptionMaps(analyzer['speechiness'], content, 'speechiness')
+        updateDescriptionMaps(analyzer['danceability'], content, 'danceability')
+        updateDescriptionMaps(analyzer['valence'], content, 'valence')
+        updateDescriptionMaps(analyzer['acousticness'],content, 'acousticness')
+        updateDescriptionMaps(analyzer['energy'], content, 'energy')
+        
+        #Update Binary Tree
+        updateGeneralGeneros(analyzer['generos'], content)
+        updateGeneros(analyzer['Reggae'], content, 60, 90)
+        updateGeneros(analyzer['Down-tempo'], content, 70, 100)
+        updateGeneros(analyzer['Chill-out'], content, 90, 120)
+        updateGeneros(analyzer['Hip-hop'], content, 85, 115)
+        updateGeneros(analyzer['Jazz and Funk'], content, 120, 125)
+        updateGeneros(analyzer['Pop'], content, 100, 130)
+        updateGeneros(analyzer['R&B'], content, 60, 80)
+        updateGeneros(analyzer['Rock'], content, 110, 140)
+        updateGeneros(analyzer['Metal'], content, 100, 160)    
 
-    #Update Binary Tree Tiem
-    updateHash(analyzer['track_hashtag'], content)
-    
+        #Update Binary Tree Tiem
+        updateHash(analyzer['track_hashtag'], content)
+        mp.put(analyzer['ferrari'], car, 0)
     return analyzer
 
 #analyzer['Sentiment_values']
 def addContent_hash(analyzer, content):
+
+    # updateDescriptionMaps(analyzer['instrumentalness'], content, 'instrumentalness')
+    # updateDescriptionMaps(analyzer['liveness'], content, 'liveness')
+    # updateDescriptionMaps(analyzer['speechiness'], content, 'speechiness')
+    # updateDescriptionMaps(analyzer['danceability'], content, 'danceability')
+    # updateDescriptionMaps(analyzer['valence'], content, 'valence')
+    # updateDescriptionMaps(analyzer['acousticness'], content, 'acousticness')
+    # updateDescriptionMaps(analyzer['energy'], content, 'energy')
+
     #lt.addLast(analyzer['track_hashtag'], content)
     updateHash(analyzer['track_hashtag'], content)
+    lt.addLast(analyzer['track_hashtag_lst'], content)
 
 def addSentiment(analyzer, content):
     updateSentiment(analyzer['Sentiment_values'], content)
@@ -188,10 +237,17 @@ def updateDescriptionMaps(map, content, feature):
     #     instrumental_entry = me.getValue(entry)
     # #lt.addLast(instrumental_entry['lstContent'], content)
     # addInstrumentalIndex(instrumental_entry, content)
-    # return map    
+    # return map
+
+    #car = content['user_id']+content['track_id']+content['created_at']
+
+    #cars = mp.contains(ferrari, car)
+    #if not cars:  #not lt.isPresent(ferrari, car):
     Instrumental_value = float(content[feature])
     #artist = content['artist_id']
     exist_value = om.contains(map, Instrumental_value)
+
+    #the_map = om.get(map, Instrumental_value)
 
     if exist_value:
         entry = om.get(map, Instrumental_value)
@@ -199,8 +255,10 @@ def updateDescriptionMaps(map, content, feature):
     else:
         actual_value = newInstrumentEntry(content, Instrumental_value)
         om.put(map, Instrumental_value, actual_value)
+    #lt.addLast(ferrari, car)
     lt.addLast(actual_value['lstContent'], content)
-    
+    #mp.put(ferrari, car, 0)
+
     # exist_artist = mp.contains(actual_value['lstContent'], artist)
 
     # if exist_artist:
@@ -338,20 +396,37 @@ def R_2y3(feature_1, feature_2, analyzer, min_value1,
         #    pass
     return lt.size(unique_tracks), randomness
 
-def R_4(analyzer, genero):
+def R_4(analyzer, genero, num, min_value, max_value):
     # lst = om.values(analyzer['generos'], 60, 90)
     artist_10 = lt.newList('ARRAY_LIST')
-    total_songs, artists = 0, 0
+    unique_artists = lt.newList('ARRAY_LIST')
+    total_songs, artists, total_artists = 0, 0, 0
     # for reps in lt.iterator(lst):
     #     total_songs += lt.size(reps['lstContent'])
-    total_artists = mp.size(analyzer[genero])
+    if num == 1:
+        total_artists = mp.size(analyzer[genero])
 
-    for songs in lt.iterator(mp.valueSet(analyzer[genero])):
-        total_songs += lt.size(songs['lstContent'])
-        artists += 1
-        if artists <= 10:
-            artist_id = lt.getElement(songs['lstContent'], 1)
-            lt.addLast(artist_10, artist_id['artist_id'])
+        for songs in lt.iterator(mp.valueSet(analyzer[genero])):
+            total_songs += lt.size(songs['lstContent'])
+            artists += 1
+            if artists <= 10:
+                artist_id = lt.getElement(songs['lstContent'], 1)
+                lt.addLast(artist_10, artist_id['artist_id'])
+    else:
+        lst = om.values(analyzer['generos'], min_value, max_value)
+        
+        for artists_lst in lt.iterator(lst):
+            #total_artists += 1
+            total_songs += lt.size(artists_lst['lstContent'])
+            artists += 1
+            for elements in lt.iterator(artists_lst['lstContent']):
+                if not lt.isPresent(unique_artists, elements['artist_id']):
+                    lt.addLast(unique_artists, elements['artist_id'])  
+            if artists <= 10:
+                artist_id = lt.getElement(artists_lst['lstContent'], 1)
+                lt.addLast(artist_10, artist_id['artist_id'])
+        total_artists = lt.size(unique_artists)
+        #Realizar recorrido para poder hallar e imprimir artistas
 
     return total_artists, total_songs, artist_10
 
@@ -392,6 +467,7 @@ def convertHour_to_Node(Hour_value):
     Hour_value = Hour_value.split(':')
     Hour_value = float(Hour_value[0]+'.'+Hour_value[1])
     return Hour_value
+
 
 # def track_values(analyzer):
 #     return om.valueSet(analyzer['artist_id_index'])

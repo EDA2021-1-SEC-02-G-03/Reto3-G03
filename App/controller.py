@@ -98,8 +98,8 @@ def R_2y3(feature_1, feature_2, analyzer, min_value1,
     return model.R_2y3(feature_1, feature_2, analyzer, min_value1, 
     max_value1, min_value2, max_value2)
 
-def R_4(analyzer, genero):
-    return model.R_4(analyzer, genero)
+def R_4(analyzer, genero, num, min_value, max_value):
+    return model.R_4(analyzer, genero, num, min_value, max_value)
 
 def R_5(analyzer, min_hour, max_hour):
     return model.R_5(analyzer, min_hour, max_hour)

@@ -24,6 +24,8 @@ import config as cf
 import sys
 import controller
 from DISClib.ADT import list as lt
+from DISClib.ADT import map as mp
+from DISClib.DataStructures import mapentry as me
 assert cf
 
 
@@ -91,6 +93,7 @@ while True:
         controller.loadHashData(cont, content_file_hash)
         controller.loadSentiment(cont, content_file_sentiment)
         print('Registros cargados: ' + str(controller.content_size(cont)))
+        #print(cont['ferrari'])
         #print('Artistas únicos cargados:' + str(controller.artist_amount(cont)))
         #tracks = controller.track_values(cont)
         # tracks_amount = controller.unique_tracks_id(cont)
@@ -148,10 +151,10 @@ while True:
         print('')
 
     elif int(inputs[0]) == 5:
-        min_value1 = float(input('Ingrese el valor mínimo del rango para energy\n'))
-        max_value1 = float(input('Ingrese el valor máximo del rango para energy\n'))
-        min_value2 = float(input('Ingrese el valor mínimo del rango para danceability\n'))
-        max_value2 = float(input('Ingrese el valor máximo del rango para danceability\n'))
+        min_value1 = float(input('Ingrese el valor mínimo del rango para instrumentalness\n'))
+        max_value1 = float(input('Ingrese el valor máximo del rango para instrumentalness\n'))
+        min_value2 = float(input('Ingrese el valor mínimo del rango para tempo\n'))
+        max_value2 = float(input('Ingrese el valor máximo del rango para tempo\n'))
         unique_tracks = controller.R_2y3('instrumentalness', 'tempo', cont, min_value1, 
         max_value1, min_value2, max_value2)
         random_tracks = controller.random_selector(unique_tracks[1]) 
@@ -164,6 +167,7 @@ while True:
             #print(track['track_id'])
             print('Track id: '+str(track['track_id']) +str(' with instrumentalness of ')+str(track['instrumentalness'])+str(' and tempo of ')+str(track['tempo']))
         print('')
+    
     elif int(inputs[0]) == 6:
         printGeneros(cont['Nombre_generos'])
         print('')
@@ -174,17 +178,30 @@ while True:
             'Ej.:1 2 3\n')
             generos = num_generos.split(' ')
             for num in generos:
-                genero = lt.getElement(cont['Nombre_generos'], int(num))
-                #print(controller.R_4(cont, genero))
-                min_tempo = 60
-                max_tempo = 90
-                printing_data = controller.R_4(cont, genero)
-                printGenerosData(genero, printing_data[0], printing_data[1],
-                printing_data[2], min_tempo, max_tempo)
+                if int(num) < 10:
+                    genero = lt.getElement(cont['Nombre_generos'], int(num))
+                    #print(controller.R_4(cont, genero))
+                    tempo_values = mp.get(cont['generos_tempos'], genero)
+                    #print(tempo_values)
+                    min_tempo = lt.getElement(me.getValue(tempo_values), 1)
+                    # max_tempo = lt.getElement(tempo_values, 2)
+                    # min_tempo = 60
+                    max_tempo = lt.getElement(me.getValue(tempo_values), 2)
+                    printing_data = controller.R_4(cont, genero, 1, 0, 0)
+                    printGenerosData(genero, printing_data[0], printing_data[1],
+                    printing_data[2], min_tempo, max_tempo)
+                else:
+                    printing_data = controller.R_4(cont, generos, 2, float(min_tempo), float(max_tempo))
+                    printGenerosData(genero, printing_data[0], printing_data[1],
+                    printing_data[2], min_tempo, max_tempo)
+                    
+
         elif num == '2':
-            nuevo_genero = input('Nombre único para el nuevo género musical')
-            min_value = input('Valor mínimo del Tempo del nuevo género musical')
-            max_value = input('Valor máximo del Tempo del nuevo género musical')
+            nuevo_genero = input('Nombre único para el nuevo género musical: ')
+            min_value = input('Valor mínimo del Tempo del nuevo género musical: ')
+            max_value = input('Valor máximo del Tempo del nuevo género musical: ')
+            controller.addNewGenero(cont, nuevo_genero)
+            controller.addNewGenero_Tempo(cont, nuevo_genero, min_value, max_value)
 
 
         #lt.addLast(cont['Nombre_generos'], 'Carro')
@@ -201,6 +218,16 @@ while True:
         print(min_hour, max_hour)
         total_songs = controller.R_5(cont, min_hour, max_hour)
         print(total_songs)
+
+        # counter, counter1 = 0, 0
+        # for hour in lt.iterator(cont['content_features']):
+        #     if controller.convertHour_to_Node(hour['created_at']) >= min_hour and controller.convertHour_to_Node(hour['created_at']) <= max_hour:
+        #         counter += 1
+        # for hour in lt.iterator(cont['track_hashtag_lst']):
+        #     if controller.convertHour_to_Node(hour['created_at']) >= min_hour and controller.convertHour_to_Node(hour['created_at']) <= max_hour:
+        #         counter += 1
+        # total_counter = counter + counter1
+        # print(total_counter, counter, counter1) 
 
     else:
         sys.exit(0)
