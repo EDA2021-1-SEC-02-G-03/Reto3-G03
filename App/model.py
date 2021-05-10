@@ -151,13 +151,6 @@ def addContent(analyzer, content):
 
     cars = mp.contains(analyzer['ferrari'], car)
     if not cars:
-        # updateDescriptionMaps(analyzer['instrumentalness'], analyzer['avoid_reps_instrumentalness'], content, 'instrumentalness')
-        # updateDescriptionMaps(analyzer['liveness'],  analyzer['avoid_reps_liveness'], content, 'liveness')
-        # updateDescriptionMaps(analyzer['speechiness'],  analyzer['avoid_reps_speechiness'],  content, 'speechiness')
-        # updateDescriptionMaps(analyzer['danceability'], analyzer['avoid_reps_danceability'], content, 'danceability')
-        # updateDescriptionMaps(analyzer['valence'],  analyzer['avoid_reps_valence'], content, 'valence')
-        # updateDescriptionMaps(analyzer['acousticness'],  analyzer['avoid_reps_acousticness'], content, 'acousticness')
-        # updateDescriptionMaps(analyzer['energy'],  analyzer['avoid_reps_energy'], content, 'energy')
         
         updateDescriptionMaps(analyzer['instrumentalness'], content, 'instrumentalness')
         updateDescriptionMaps(analyzer['liveness'], content, 'liveness')
