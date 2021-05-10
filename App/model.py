@@ -263,7 +263,10 @@ def req_5_v_2(analyzer,start_time,end_time):
 
     list_of_maps=om.values(analyzer['hash_generos'],start_time,end_time)
     
-    registropy={}
+    #registropy={}
+    registropy = mp.newMap(numelements=65,
+                        maptype='PROBING',
+                        loadfactor=0.3)
 
     for hash_table in lt.iterator(list_of_maps):
         keyset=mp.keySet(hash_table['mapContent'])
@@ -271,15 +274,32 @@ def req_5_v_2(analyzer,start_time,end_time):
             entry=mp.get(hash_table['mapContent'],key)
             videos_list=me.getValue(entry)
             size=lt.size(videos_list['lstContent'])
-            if key in registropy:
-                registropy[key]+=size
-            elif key not in registropy:
-                registropy[key]=size
+            lamborghini = mp.get(registropy, key)
+            
+            if lamborghini is not None: #key in registropy:
+                lamborghini = me.getValue(lamborghini)
+                lamborghini += size
+                mp.put(registropy, key, lamborghini)
+                #registropy[key]+=size
+            elif lamborghini is None: #key not in registropy:
+                mp.put(registropy, key, size)
+                # registropy[key]=size
 
-    print(registropy)
+    #print(registropy)
+    print('Metal: '+str(me.getValue(mp.get(registropy, 'Metal'))))
+    print('Reggae: '+str(me.getValue(mp.get(registropy, 'Reggae'))))
+    print('Down-tempo: '+str(me.getValue(mp.get(registropy, 'Down-tempo'))))
+    print('Chill-out: '+str(me.getValue(mp.get(registropy, 'Chill-out'))))
+    print('Hip-hop: '+str(me.getValue(mp.get(registropy, 'Hip-hop'))))
+    print('Pop: '+str(me.getValue(mp.get(registropy, 'Pop'))))
+    print('R&B: '+str(me.getValue(mp.get(registropy, 'R&B'))))
+    print('Rock: '+str(me.getValue(mp.get(registropy, 'Rock'))))
+    print('Jazz and Funk: '+str(me.getValue(mp.get(registropy, 'Jazz and Funk'))))
+
     totalreps=0
-    for i in registropy:
-        totalreps+=registropy[i]
+    values = mp.valueSet(registropy)
+    for i in lt.iterator(values):
+        totalreps+=i
 
     print(totalreps)
 
