@@ -32,6 +32,7 @@ from DISClib.ADT import orderedmap as om
 from DISClib.ADT import map as mp
 from DISClib.DataStructures import mapentry as me
 from DISClib.Algorithms.Sorting import shellsort as sa
+from DISClib.DataStructures import heap as hp
 assert cf
 
 """
@@ -264,7 +265,6 @@ def req_5_v_2(analyzer,start_time,end_time):
     list_of_maps=om.values(analyzer['hash_generos'],start_time,end_time)
     
     registropy={}
-
     for hash_table in lt.iterator(list_of_maps):
         keyset=mp.keySet(hash_table['mapContent'])
         for key in lt.iterator(keyset):
@@ -275,8 +275,34 @@ def req_5_v_2(analyzer,start_time,end_time):
                 registropy[key]+=size
             elif key not in registropy:
                 registropy[key]=size
+    
+    dict_temp={}
+    registro=om.newMap(omaptype='BST')
+    for hash_table in lt.iterator(list_of_maps):
+        keyset=mp.keySet(hash_table['mapContent'])
+        for genero in lt.iterator(keyset):
+            entry=mp.get(hash_table['mapContent'],key)
+            videos_list=me.getValue(entry)
+            size=lt.size(videos_list['lstContent'])
+            if genero in dict_temp:
+                llavebst=dict_temp[genero]
+                size+=float(llavebst)
+                nuevallave=str(size)
+                om.remove(registro,llavebst)
+                om.put(registro,nuevallave,genero)
+            elif genero not in dict_temp:
+                llavebst=str(size)
+                om.put(registro,llavebst,genero)
+                dict_temp[genero]=llavebst
 
-    print(registropy)
+
+    while not om.isEmpty(registro):
+        maxno=om.maxKey(registro)
+        maxgen=om.get(registro,maxno)
+        maxgen=me.getValue(maxgen)
+        om.remove(registro,maxno)
+        print(maxno,maxgen)
+
     totalreps=0
     for i in registropy:
         totalreps+=registropy[i]
