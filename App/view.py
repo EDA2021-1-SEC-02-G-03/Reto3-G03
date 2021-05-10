@@ -73,6 +73,15 @@ def printGenerosData(genero, total_artist, total_songs,
     for artist in lt.iterator(artist_10):
         num += 1
         print('Artist '+str(num)+': '+artist)
+
+def printVideosCarga(lst):
+    counter = 0
+    for video in lt.iterator(lst):
+        counter += 1
+        print('Event: '+'Track_id: '+video['track_id']+'|'+'instrumentalness'+video['instrumentalness']+'|'+'Artist_id: '+video['artist_id']+'|')
+        if counter == 5:
+            print('.........')
+
 catalog = None
 
 """
@@ -92,7 +101,19 @@ while True:
         controller.loadListTempos(cont)
         controller.loadHashData(cont, content_file_hash)
         controller.loadSentiment(cont, content_file_sentiment)
-        print('Registros cargados: ' + str(controller.content_size(cont)))
+        print('++++ Carga de datos ++++')
+        print('-----------------------------------------------------------')
+        print('Total de registros de eventos de escucha cargados: ' + str(controller.content_size(cont)))
+        print('Total de artistas únicos cargados: '+str(mp.size(cont['artistas'])))
+        print('Total de pistas de audio únicas cargadas: '+str(mp.size(cont['unique_tracks_init'])))
+        print('-----------------------------------------------')
+        videos = controller.videos_carga(cont)
+        printVideosCarga(videos)
+        print('-------------------------------------------------------------------')
+        print('')
+        # for video in lt.iterator(videos):
+        #     print(video['track_id'])
+
         #print(cont['ferrari'])
         #print('Artistas únicos cargados:' + str(controller.artist_amount(cont)))
         #tracks = controller.track_values(cont)
@@ -111,9 +132,14 @@ while True:
         artist_amount = controller.R_1(feature, cont, min_value, max_value)
         #print('La altura del arbol es: ' + str(controller.tracks_amount(cont)))
         #print('La cantidad de elementos son: ' + str(controller.content_size(cont)))
-        print(artist_amount[0], artist_amount[1])
-        glitter = []
-        counter = 0
+        print('--------------------------------------------')
+        print('++++ Req No. 1 results ++++')
+        print(feature+' is between '+str(min_value)+' and '+str(max_value))
+        print('Total of reproductions: '+str(artist_amount[0])+' ;'+' Total of unique artists: '+str(artist_amount[1]))
+        print('--------------------------------------------')
+        #print(artist_amount[0], artist_amount[1])
+        #glitter = []
+        #counter = 0
         # for i in artist_amount[2][7]:
         #     counter += 1
         #     if i not in glitter:
@@ -173,9 +199,11 @@ while True:
         print('')
         print('Escoja una de las siguientes opciones:')
         num = input('1. Escribir los numeros de los generos que desea buscar\n2. Agregar un nuevo genero musical\n')
+        total_reps = 0
         if num == '1':
             num_generos = input('Escriba los numeros de los generos que desea buscar, separe los números por comas\n'+
             'Ej.:1 2 3\n')
+            print('')
             generos = num_generos.split(' ')
             for num in generos:
                 if int(num) < 10:
@@ -190,10 +218,19 @@ while True:
                     printing_data = controller.R_4(cont, genero, 1, 0, 0)
                     printGenerosData(genero, printing_data[0], printing_data[1],
                     printing_data[2], min_tempo, max_tempo)
+                    total_reps += int(printing_data[1])
+                    print('--------------------------------------------')
                 else:
+                    genero = lt.getElement(cont['Nombre_generos'], int(num))
                     printing_data = controller.R_4(cont, generos, 2, float(min_tempo), float(max_tempo))
                     printGenerosData(genero, printing_data[0], printing_data[1],
                     printing_data[2], min_tempo, max_tempo)
+                    total_reps += int(printing_data[1])
+                    print('--------------------------------------------')
+
+            print('Total of reproductiosn: '+str(total_reps))
+            print('--------------------------------------------')
+            print('')
                     
 
         elif num == '2':

@@ -115,4 +115,7 @@ def addNewGenero_Tempo(analyzer, genero, min_tempo, max_tempo):
 
 def convertHour_to_Node(Hour_value):
     return model.convertHour_to_Node(Hour_value)
+
+def videos_carga(analyzer):
+    return model.videos_carga(analyzer)
 # Funciones de ordenamiento

@@ -70,7 +70,12 @@ def newAnalyzer():
     analyzer['acousticness'] = om.newMap(omaptype='BST')
     analyzer['energy'] = om.newMap(omaptype='BST')
 
-    analyzer['artistas'] = om.newMap(omaptype='BST')
+    analyzer['artistas'] = mp.newMap(numelements=65,
+                                   maptype='PROBING',
+                                   loadfactor=0.3)
+    analyzer['unique_tracks_init'] = mp.newMap(numelements=65,
+                                   maptype='PROBING',
+                                   loadfactor=0.3)
 
     #Binary Trees para generos
     analyzer['generos'] = om.newMap(omaptype='BST')
@@ -145,13 +150,16 @@ def newAnalyzer():
 # Funciones para agregar informacion al catalogo
 
 def addContent(analyzer, content):
-    lt.addLast(analyzer['content_features'], content)
     #Update Binary Trees
     car = content['user_id']+content['track_id']+content['created_at']
 
     cars = mp.contains(analyzer['ferrari'], car)
     if not cars:
-        
+
+        lt.addLast(analyzer['content_features'], content)
+        mp.put(analyzer['artistas'], content['artist_id'], 0)
+        mp.put(analyzer['unique_tracks_init'], content['track_id'], 0)
+        #Update Binary Trees de caracterización
         updateDescriptionMaps(analyzer['instrumentalness'], content, 'instrumentalness')
         updateDescriptionMaps(analyzer['liveness'], content, 'liveness')
         updateDescriptionMaps(analyzer['speechiness'], content, 'speechiness')
@@ -344,7 +352,10 @@ def R_1(feature, analyzer, min_value, max_value):
     total_artists, total_songs = 0, 0
     #pruebas = []
     #print(lt.getElement(lst, 3))
-    unique_artists = lt.newList('ARRAY_LIST')
+    #unique_artists = lt.newList('ARRAY_LIST')
+    unique_artists = mp.newMap(numelements=65,
+                                   maptype='PROBING',
+                                   loadfactor=0.3)
     tracks = lt.newList('ARRAY_LIST')
     for artist in lt.iterator(lst):
         #total_artists += 1
@@ -355,8 +366,10 @@ def R_1(feature, analyzer, min_value, max_value):
             #break
         total_songs += lt.size(artist['lstContent'])
         for artists in lt.iterator(artist['lstContent']):
-            if not lt.isPresent(unique_artists, artists['artist_id']):
-                 lt.addLast(unique_artists, artists['artist_id'])
+            if mp.get(unique_artists, artists['artist_id']) is None: #not lt.isPresent(unique_artists, artists['artist_id']):
+                 mp.put(unique_artists, artists['artist_id'], 0)
+                 #lt.addLast(unique_artists, artists['artist_id'])
+
             lt.addLast(tracks, artists)
         # for artists in lt.iterator(mp.keySet(artist['lstContent'])):
         #     normal_brother.append(artists)
@@ -365,16 +378,20 @@ def R_1(feature, analyzer, min_value, max_value):
         #     total_songs += lt.size(songs['instrumental_content'])
         #total_songs += lt.size(mp.valueSet(artist['lstContent']))
         # total_songs += mp.size(me.getValue())
-        total_artists = lt.size(unique_artists)
+        #total_artists = lt.size(unique_artists)
+        total_artists = mp.size(unique_artists)
 
-    return total_artists, total_songs, lst, tracks#, pruebas
+    return total_artists, total_songs, lst, tracks #, pruebas
 
 def R_2y3(feature_1, feature_2, analyzer, min_value1, 
     max_value1, min_value2, max_value2):
     content_f1 = R_1(feature_1, analyzer, min_value1, max_value1)[3]
     #content_f2 = R_1(feature_2, analyzer, min_value2, max_value2)[3]
     randomness = lt.newList('ARRAY_LIST')
-    unique_tracks = lt.newList('ARRAY_LIST')
+    #unique_tracks = lt.newList('ARRAY_LIST')
+    unique_tracks = mp.newMap(numelements=65,
+                                   maptype='PROBING',
+                                   loadfactor=0.3)
     #print(lt.size(content_f2))
     for content in lt.iterator(content_f1):
         #try:
@@ -382,8 +399,9 @@ def R_2y3(feature_1, feature_2, analyzer, min_value1,
         
         #if lt.isPresent(content_f2, content['track_id']):
         #     print('yas')
-            if not lt.isPresent(unique_tracks, content['track_id']):
-                lt.addLast(unique_tracks, content['track_id'])
+            if mp.get(unique_tracks, content['track_id']) is None:   #not lt.isPresent(unique_tracks, content['track_id']):
+                #lt.addLast(unique_tracks, content['track_id'])
+                mp.put(unique_tracks, content['track_id'], 0)
                 lt.addLast(randomness, content)
         #except:
         #    pass
@@ -392,7 +410,10 @@ def R_2y3(feature_1, feature_2, analyzer, min_value1,
 def R_4(analyzer, genero, num, min_value, max_value):
     # lst = om.values(analyzer['generos'], 60, 90)
     artist_10 = lt.newList('ARRAY_LIST')
-    unique_artists = lt.newList('ARRAY_LIST')
+    #unique_artists = lt.newList('ARRAY_LIST')
+    unique_artists = mp.newMap(numelements=65,
+                                   maptype='PROBING',
+                                   loadfactor=0.3)
     total_songs, artists, total_artists = 0, 0, 0
     # for reps in lt.iterator(lst):
     #     total_songs += lt.size(reps['lstContent'])
@@ -413,8 +434,9 @@ def R_4(analyzer, genero, num, min_value, max_value):
             total_songs += lt.size(artists_lst['lstContent'])
             artists += 1
             for elements in lt.iterator(artists_lst['lstContent']):
-                if not lt.isPresent(unique_artists, elements['artist_id']):
-                    lt.addLast(unique_artists, elements['artist_id'])  
+                if mp.get(unique_artists, elements['artist_id']) is None:  #not lt.isPresent(unique_artists, elements['artist_id']):
+                    mp.put(unique_artists, elements['artist_id'], 0)
+                    #lt.addLast(unique_artists, elements['artist_id'])  
             if artists <= 10:
                 artist_id = lt.getElement(artists_lst['lstContent'], 1)
                 lt.addLast(artist_10, artist_id['artist_id'])
@@ -460,6 +482,16 @@ def convertHour_to_Node(Hour_value):
     Hour_value = Hour_value.split(':')
     Hour_value = float(Hour_value[0]+'.'+Hour_value[1])
     return Hour_value
+
+def videos_carga(analyzer):
+    events = lt.newList('ARRAY_LIST')
+    for event in range(1, 11):
+        if event < 6:
+            video = lt.getElement(analyzer['content_features'], event)
+        else:
+            video = lt.getElement(analyzer['content_features'], lt.size(analyzer['content_features'])-event)
+        lt.addLast(events, video)
+    return events
 
 
 # def track_values(analyzer):
