@@ -30,14 +30,13 @@ import csv
 El controlador se encarga de mediar entre la vista y el modelo.
 """
 
-# Inicialización del Catálogo de libros
+
 
 def init():
 
     analyzer = model.newAnalyzer()
     return analyzer
 
-# Funciones para la carga de datos
 
 def loadData(analyzer, content_file):
 
@@ -85,7 +84,7 @@ def loadListTempos(analyzer):
     addNewGenero_Tempo(analyzer, 'R&B', 60, 80)
     addNewGenero_Tempo(analyzer, 'Rock', 110, 140)
     addNewGenero_Tempo(analyzer, 'Metal', 100, 160)
-# Funciones de consulta sobre el catálogo
+
 
 def content_size(analyzer):
     return model.content_size(analyzer)
@@ -118,4 +117,3 @@ def convertHour_to_Node(Hour_value):
 
 def videos_carga(analyzer):
     return model.videos_carga(analyzer)
-# Funciones de ordenamiento

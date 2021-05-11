@@ -39,7 +39,7 @@ Se define la estructura de un catálogo de videos. El catálogo tendrá dos list
 los mismos.
 """
 
-# Construccion de modelos
+
 
 def newAnalyzer():
 
@@ -59,7 +59,7 @@ def newAnalyzer():
     #Lists
     analyzer['content_features'] = lt.newList('ARRAY_LIST')
     analyzer['track_hashtag_lst'] = lt.newList('ARRAY_LIST')
-    #analyzer['Sentiment_values_lst'] = lt.newList('ARRAY_LIST')
+
 
     #Binary Trees
     analyzer['instrumentalness'] = om.newMap(omaptype='BST')
@@ -119,35 +119,9 @@ def newAnalyzer():
                                    maptype='PROBING',
                                    loadfactor=0.3)
 
-    # analyzer['avoid_reps_instrumentalness'] = mp.newMap(numelements=65,
-    #                                maptype='PROBING',
-    #                                loadfactor=0.3)
-    # analyzer['avoid_reps_liveness'] = mp.newMap(numelements=65,
-    #                                maptype='PROBING',
-    #                                loadfactor=0.3)
-    # analyzer['avoid_reps_speechiness'] = mp.newMap(numelements=65,
-    #                                maptype='PROBING',
-    #                                loadfactor=0.3)
-    # analyzer['avoid_reps_danceability'] = mp.newMap(numelements=65,
-    #                                maptype='PROBING',
-    #                                loadfactor=0.3)
-    # analyzer['avoid_reps_valence'] = mp.newMap(numelements=65,
-    #                                maptype='PROBING',
-    #                                loadfactor=0.3)
-    # analyzer['avoid_reps_acousticness'] = mp.newMap(numelements=65,
-    #                                maptype='PROBING',
-    #                                loadfactor=0.3)
-    # analyzer['avoid_reps_energy'] = mp.newMap(numelements=65,
-    #                                maptype='PROBING',
-    #                                loadfactor=0.3)
-    
     return analyzer
 
-#lista para generos
-# genero={'Nombre_genero':None}
-# generos['Nombre_generos'] = lt.newList('ARRAY_LIST')
 
-# Funciones para agregar informacion al catalogo
 
 def addContent(analyzer, content):
     #Update Binary Trees
@@ -185,18 +159,10 @@ def addContent(analyzer, content):
         mp.put(analyzer['ferrari'], car, 0)
     return analyzer
 
-#analyzer['Sentiment_values']
+
 def addContent_hash(analyzer, content):
 
-    # updateDescriptionMaps(analyzer['instrumentalness'], content, 'instrumentalness')
-    # updateDescriptionMaps(analyzer['liveness'], content, 'liveness')
-    # updateDescriptionMaps(analyzer['speechiness'], content, 'speechiness')
-    # updateDescriptionMaps(analyzer['danceability'], content, 'danceability')
-    # updateDescriptionMaps(analyzer['valence'], content, 'valence')
-    # updateDescriptionMaps(analyzer['acousticness'], content, 'acousticness')
-    # updateDescriptionMaps(analyzer['energy'], content, 'energy')
 
-    #lt.addLast(analyzer['track_hashtag'], content)
     updateHash(analyzer['track_hashtag'], content)
     lt.addLast(analyzer['track_hashtag_lst'], content)
 
@@ -221,34 +187,12 @@ def updateSentiment(map, content):
     pass
 
 def updateDescriptionMaps(map, content, feature):
-    # #Se revisa el valor que va a ser llave de un nodo
-    # Instrumental_value = float(content['instrumentalness'])
-    # #Vemos si algún nodo ya tiene este valor
-    # entry = om.get(map, Instrumental_value)
-    # if entry is None:
-    #     #Creamos la estructura del nodo que tendra como llave 
-    #     #El valor de instrumentalidad visto previamente
-    #     instrumental_entry = newInstrumentEntry(content)
-    #     #Este valor se agraga al nodo y nos queda la siguiente estructura
-    #     #Un nodo {Key-"Valor_Instrumentalidad":Valor-Mapa}
-    #     #El mapa que esta como valor del nodo tiene la siguiente estructura
-    #     #{Key-Artista_id:Valor-Lista con contendio del mismo artista}
-    #     om.put(map, Instrumental_value, instrumental_entry)
-    # else:
-    #     instrumental_entry = me.getValue(entry)
-    # #lt.addLast(instrumental_entry['lstContent'], content)
-    # addInstrumentalIndex(instrumental_entry, content)
-    # return map
 
-    #car = content['user_id']+content['track_id']+content['created_at']
-
-    #cars = mp.contains(ferrari, car)
-    #if not cars:  #not lt.isPresent(ferrari, car):
     Instrumental_value = float(content[feature])
-    #artist = content['artist_id']
+
     exist_value = om.contains(map, Instrumental_value)
 
-    #the_map = om.get(map, Instrumental_value)
+   
 
     if exist_value:
         entry = om.get(map, Instrumental_value)
@@ -256,31 +200,12 @@ def updateDescriptionMaps(map, content, feature):
     else:
         actual_value = newInstrumentEntry(content, Instrumental_value)
         om.put(map, Instrumental_value, actual_value)
-    #lt.addLast(ferrari, car)
+
     lt.addLast(actual_value['lstContent'], content)
-    #mp.put(ferrari, car, 0)
-
-    # exist_artist = mp.contains(actual_value['lstContent'], artist)
-
-    # if exist_artist:
-    #     entry_art = mp.get(actual_value['lstContent'], artist)
-    #     actual_artist = me.getValue(entry_art)
-    # else:
-    #     actual_artist = newArtist(content)
-    #     mp.put(actual_value['lstContent'], artist, actual_artist)
-    # lt.addLast(actual_artist['instrumental_content'], content)
+ 
 
 
 
-# def addInstrumentalIndex(Instrumental_entry, content):
-#     entry_content = mp.get(Instrumental_entry['lstContent'], content['artist_id'])
-#     if (entry_content is None):
-#         entry = newArtist(content)
-#         mp.put(Instrumental_entry['lstContent'], content['artist_id'], entry)
-#     else:
-#         entry = me.getValue(entry_content)
-#     lt.addLast(entry['instrumental_content'], content)
-#     return Instrumental_entry
 
 def updateGeneralGeneros(map, content):
     Tempo_value = float(content['tempo'])
@@ -307,9 +232,7 @@ def newInstrumentEntry(content, Instrumental_value):
 
     entry = {'Instrument_value': None, 'lstContent':None}
     entry['Instrument_value'] = Instrumental_value
-    # entry['lstContent'] = mp.newMap(numelements=65,
-    #                                 maptype='PROBING',
-    #                                 loadfactor=0.5)
+
     entry['lstContent'] = lt.newList('ARRAY_LIST')
     return entry
 
@@ -334,15 +257,6 @@ def newHourEntry(content, Hour_value):
     entry['lstContent'] = lt.newList('ARRAY_LIST')
     return entry
 
-# def newArtist(content):
-#     ofentry = {'Artist_id':None, 'instrumental_content':None}
-#     ofentry['Artist_id'] = content['artist_id']
-#     ofentry['instrumental_content'] = lt.newList('ARRAY_LIST')
-#     return ofentry
-
-# Funciones para creacion de datos
-
-# Funciones de consulta
 
 def content_size(analyzer):
     return lt.size(analyzer['content_features'])
@@ -350,73 +264,55 @@ def content_size(analyzer):
 def R_1(feature, analyzer, min_value, max_value):
     lst = om.values(analyzer[feature], min_value, max_value)
     total_artists, total_songs = 0, 0
-    #pruebas = []
-    #print(lt.getElement(lst, 3))
-    #unique_artists = lt.newList('ARRAY_LIST')
+
     unique_artists = mp.newMap(numelements=65,
                                    maptype='PROBING',
                                    loadfactor=0.3)
     tracks = lt.newList('ARRAY_LIST')
     for artist in lt.iterator(lst):
-        #total_artists += 1
-        #normal_brother = []
-        #total_artists += lt.size(mp.keySet(artist['lstContent']))
-        # if total_artists >= 7:
-        #     print(mp.keySet(artist['lstContent']))
-            #break
+
         total_songs += lt.size(artist['lstContent'])
         for artists in lt.iterator(artist['lstContent']):
-            if mp.get(unique_artists, artists['artist_id']) is None: #not lt.isPresent(unique_artists, artists['artist_id']):
+            if mp.get(unique_artists, artists['artist_id']) is None: 
                  mp.put(unique_artists, artists['artist_id'], 0)
-                 #lt.addLast(unique_artists, artists['artist_id'])
+     
 
             lt.addLast(tracks, artists)
-        # for artists in lt.iterator(mp.keySet(artist['lstContent'])):
-        #     normal_brother.append(artists)
-        # pruebas.append(normal_brother)
-        # for songs in lt.iterator(mp.valueSet(artist['lstContent'])):
-        #     total_songs += lt.size(songs['instrumental_content'])
-        #total_songs += lt.size(mp.valueSet(artist['lstContent']))
-        # total_songs += mp.size(me.getValue())
-        #total_artists = lt.size(unique_artists)
+
         total_artists = mp.size(unique_artists)
 
-    return total_artists, total_songs, lst, tracks #, pruebas
+    return total_artists, total_songs, lst, tracks 
 
 def R_2y3(feature_1, feature_2, analyzer, min_value1, 
     max_value1, min_value2, max_value2):
     content_f1 = R_1(feature_1, analyzer, min_value1, max_value1)[3]
-    #content_f2 = R_1(feature_2, analyzer, min_value2, max_value2)[3]
+
     randomness = lt.newList('ARRAY_LIST')
-    #unique_tracks = lt.newList('ARRAY_LIST')
+
     unique_tracks = mp.newMap(numelements=65,
                                    maptype='PROBING',
                                    loadfactor=0.3)
-    #print(lt.size(content_f2))
+   
     for content in lt.iterator(content_f1):
-        #try:
+        
         if float(content[feature_2]) >= min_value2 and float(content[feature_2]) <= max_value2:
         
-        #if lt.isPresent(content_f2, content['track_id']):
-        #     print('yas')
-            if mp.get(unique_tracks, content['track_id']) is None:   #not lt.isPresent(unique_tracks, content['track_id']):
-                #lt.addLast(unique_tracks, content['track_id'])
+
+            if mp.get(unique_tracks, content['track_id']) is None:   
                 mp.put(unique_tracks, content['track_id'], 0)
                 lt.addLast(randomness, content)
-        #except:
-        #    pass
+     
     return mp.size(unique_tracks), randomness
 
 def R_4(analyzer, genero, num, min_value, max_value):
-    # lst = om.values(analyzer['generos'], 60, 90)
+
     artist_10 = lt.newList('ARRAY_LIST')
-    #unique_artists = lt.newList('ARRAY_LIST')
+
     unique_artists = mp.newMap(numelements=65,
                                    maptype='PROBING',
                                    loadfactor=0.3)
     total_songs, artists, total_artists = 0, 0, 0
-    # for reps in lt.iterator(lst):
-    #     total_songs += lt.size(reps['lstContent'])
+    
     if num == 1:
         total_artists = mp.size(analyzer[genero])
 
@@ -430,18 +326,18 @@ def R_4(analyzer, genero, num, min_value, max_value):
         lst = om.values(analyzer['generos'], min_value, max_value)
         
         for artists_lst in lt.iterator(lst):
-            #total_artists += 1
+         
             total_songs += lt.size(artists_lst['lstContent'])
             artists += 1
             for elements in lt.iterator(artists_lst['lstContent']):
-                if mp.get(unique_artists, elements['artist_id']) is None:  #not lt.isPresent(unique_artists, elements['artist_id']):
+                if mp.get(unique_artists, elements['artist_id']) is None:  
                     mp.put(unique_artists, elements['artist_id'], 0)
-                    #lt.addLast(unique_artists, elements['artist_id'])  
+          
             if artists <= 10:
                 artist_id = lt.getElement(artists_lst['lstContent'], 1)
                 lt.addLast(artist_10, artist_id['artist_id'])
         total_artists = lt.size(unique_artists)
-        #Realizar recorrido para poder hallar e imprimir artistas
+        
 
     return total_artists, total_songs, artist_10
 
@@ -494,28 +390,3 @@ def videos_carga(analyzer):
     return events
 
 
-# def track_values(analyzer):
-#     return om.valueSet(analyzer['artist_id_index'])
-
-# def unique_tracks_id(analyzer):
-#     tracks = 0
-#     lst_values = om.valueSet(analyzer['artist_id_index'])
-#     # for element in range(lt.size(lst_values)):
-#     #     map_values = lt.getElement(lst_values, element)
-#     #     #amount = me.size(map_values)
-#     #     print(map_values)
-#     #     tracks += 1
-#     #     if tracks >= 3:
-#     #         break
-#     for element in lt.iterator(lst_values):
-#         maps = element['lstContent']
-
-#         #tracks += int(mp.size(element))
-#         #print(element)
-#     return tracks
-
-#Añadiendo los generos predeterminados a la lista de generos
-
-# Funciones utilizadas para comparar elementos dentro de una lista
-
-# Funciones de ordenamiento
