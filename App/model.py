@@ -436,7 +436,10 @@ def req_5_v_2(analyzer,start_time,end_time):
                 videos_list=me.getValue(entry)
                 for video in lt.iterator(videos_list['lstContent']):
                     hp.insert(all_videos,video)
-    
+    print('The TOP GENRE is '+mayor+' with '+str(repsmax)+' reproductions...')
+    print(mayor+'SENTIMENT ANALYSIS')
+    if mayor=='Metal':
+        print('Metal has '+str(me.getValue(mp.get(registropy,'Metal_unique')))+' unique tracks...')
     for i in range(1,11):
         video=hp.delMin(all_videos)
         vader_avg=0
