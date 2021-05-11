@@ -208,7 +208,23 @@ def addGenreIndex(analyzer,entry,content):
     user_id=content['user_id']
     created_at=content['created_at']
     keytime=created_at[11:17]+'00'
-    entry=om.get(analyzer['track_hashtags'],keytime)
+    entryy=om.get(analyzer['track_hashtags'],content['track_id'])
+    if entryy is not None:
+        value=me.getValue(entryy)
+        hashtags_list=value['lstContent']
+        if 'hashtag' not in content:
+            content['hashtag']=lt.newList('ARRAY_LIST')
+            for i in lt.iterator(hashtags_list):
+                if i['created_at']==content['created_at'] and i['user_id']==content['user_id'] and not lt.isPresent(content['hashtag'],i['hashtag']):
+                    lt.addLast(content['hashtag'],i['hashtag'])
+        elif 'hashtag' in content:
+            for i in lt.iterator(hashtags_list):
+                if i['created_at']==content['created_at'] and i['user_id']==content['user_id'] and not lt.isPresent(content['hashtag'],i['hashtag']):
+                    lt.addLast(content['hashtag'],i['hashtag'])
+
+        lt.addLast(lst0,content)
+        
+'''
     if entry is not None:
         value=me.getValue(entry)
         hashtable=value['mapContent']
@@ -225,21 +241,13 @@ def addGenreIndex(analyzer,entry,content):
                         valuevader=(me.getValue(entryvader))
                         valuevaderlist=valuevader['lstContent']
                         element=lt.getElement(valuevaderlist,1)
+                        #lt.addLast(content['hashtag'],video['hashtag'].lower())
                         vader_avg=element['vader_avg']
                         if len(vader_avg)>0:
                             lt.addLast(content['hashtag'],video['hashtag'].lower())
-            #TODO:Encontrar manera mas eficiente de hacer esto
-            
-           
             lt.addLast(lst0,content)
-            '''
-             esta=False
-            for i in lt.iterator(lst0):
-                if i==content:
-                    esta=True
-            if not esta:
-                addlast
-            '''
+'''
+           
 
 def newHashTimeEntry(content):
     entry={'created_at':None,'mapContent':None}
@@ -257,14 +265,24 @@ def genre_by_tempo(analyzer,content):
         return genre_list
 
 def req_5_v_2(analyzer,start_time,end_time):
-    
+    '''
+    keys=om.keySet(analyzer['track_hashtags'])
+    values=om.valueSet(analyzer['track_hashtags'])
+
+    for i in lt.iterator(values):
+        for e in lt.iterator(i['lstContent']):
+            print(i['track_id'],e)
+    '''
+
+
+
+   
     keys=om.valueSet(analyzer['sentiment_values'])
  
     
 
     list_of_maps=om.values(analyzer['hash_generos'],start_time,end_time)
     
-    #registropy={}
     registropy = mp.newMap(numelements=65,
                         maptype='PROBING',
                         loadfactor=0.3)
@@ -277,16 +295,14 @@ def req_5_v_2(analyzer,start_time,end_time):
             size=lt.size(videos_list['lstContent'])
             lamborghini = mp.get(registropy, key)
             
-            if lamborghini is not None: #key in registropy:
+            if lamborghini is not None: 
                 lamborghini = me.getValue(lamborghini)
                 lamborghini += size
                 mp.put(registropy, key, lamborghini)
-                #registropy[key]+=size
-            elif lamborghini is None: #key not in registropy:
+            elif lamborghini is None: 
                 mp.put(registropy, key, size)
-                # registropy[key]=size
-
-    #print(registropy)
+ 
+    print('Metal unique: '+str(me.getValue(mp.get(registropy, 'Metal_unique'))))
     print('Metal: '+str(me.getValue(mp.get(registropy, 'Metal'))))
     print('Reggae: '+str(me.getValue(mp.get(registropy, 'Reggae'))))
     print('Down-tempo: '+str(me.getValue(mp.get(registropy, 'Down-tempo'))))
@@ -296,63 +312,44 @@ def req_5_v_2(analyzer,start_time,end_time):
     print('R&B: '+str(me.getValue(mp.get(registropy, 'R&B'))))
     print('Rock: '+str(me.getValue(mp.get(registropy, 'Rock'))))
     print('Jazz and Funk: '+str(me.getValue(mp.get(registropy, 'Jazz and Funk'))))
+ 
 
     totalreps=0
-    values = mp.valueSet(registropy)
-    for i in lt.iterator(values):
-        totalreps+=i
-
-    print(totalreps)
-
-
-
-
-
-
-    #Map que quedó mal, podría ser mejor un heap
-    '''
-    registro=mp.newMap(numelements=65,
-                                maptype='PROBING',
-                                loadfactor=0.3)
-
+    genres=mp.keySet(registropy)
+    mayor=''
+    repsmax=0
+    repstemp=0
+    for genre in lt.iterator(genres):
+        repstemp=me.getValue(mp.get(registropy,genre))
+        if repstemp>repsmax:
+            repsmax=repstemp
+            mayor=genre
+        if 'unique' not in genre:
+            totalreps+=repstemp
+    print(mayor,repsmax,totalreps)
+    all_videos=hp.newHeap(heap_compare)
     for hash_table in lt.iterator(list_of_maps):
         keyset=mp.keySet(hash_table['mapContent'])
         for key in lt.iterator(keyset):
-            entry=mp.get(hash_table['mapContent'],key)
-            videos_list=me.getValue(entry)
-            size=lt.size(videos_list['lstContent'])
-            if mp.contains(registro,key):
-                entry1=mp.get(registro,key)
-                value=me.getValue(entry1)
-                newvalue=value+size
-                mp.put(registro,key,newvalue)
-            elif not mp.contains(registro,key):
-                mp.put(registro,key,size)
+            if key==mayor:
+                entry=mp.get(hash_table['mapContent'],key)
+                videos_list=me.getValue(entry)
+                for video in lt.iterator(videos_list['lstContent']):
+                    hp.insert(all_videos,video)
+    
+    for i in range(1,10):
+        video=hp.delMin(all_videos)
+        print(video['track_id'],lt.size(video['hashtag']),video['hashtag']['elements'])
+    
 
-    totalreps=0
-    mayor=''
-    repsmax=0
-    lista_generos=lt.newList('ARRAY_LIST')
-    i=1
-    while i<=mp.size(registro):
-        keys=mp.keySet(registro)
-        for key in lt.iterator(keys):
-            totalreps+=me.getValue(mp.get(registro,key))
-            if me.getValue(mp.get(registro,key))>repsmax:
-                repsmax=me.getValue(mp.get(registro,key))
-                mayor=key
-        if i==1:
-            totalfinal=totalreps
-        lt.addLast(lista_generos,(mayor,repsmax))
-        mp.remove(registro,mayor)
-        repsmax=0
-        i+=1
 
-    print(registro)
-    for i in lt.iterator(lista_generos):
-        print(i)
-    '''
-
+def heap_compare(video1,video2):
+    if lt.size(video1['hashtag'])==lt.size(video2['hashtag']):
+        return 0
+    elif lt.size(video1['hashtag'])<lt.size(video2['hashtag']):
+        return 1
+    else:
+        return -1
 
 
 def updateTempoGenero(omap):
@@ -377,6 +374,8 @@ def updateTempoGenero(omap):
             lt.addLast(tempolist,'Rock')
         if tempo>=100 and tempo<=160:
             lt.addLast(tempolist,'Metal')
+        if tempo>140 and tempo<=160:
+            lt.addLast(tempolist, 'Metal_unique')
         entry=om.get(omap,str(tempo))
         if entry is None:
             tempoentry=newTempoEntry(str(tempo))
@@ -594,38 +593,29 @@ def random_selector(lst):
 #Carga BST Track Hashtags
 
 def updateTrackHash(analyzer,omap,content):
-    time = content['created_at']
-    newtime = time[11:17]+'00'
-    entry = om.get(omap,newtime)
+    trackid = content['track_id']
+    entry = om.get(omap,trackid)
     if entry is None:
-        timeentry=newHashTimeEntry(content)
-        om.put(omap,newtime,timeentry)
+        timeentry=newHashTrackIDEntry(content)
+        om.put(omap,trackid,timeentry)
     else:
         timeentry=me.getValue(entry)
     addContent_Track_Hash(analyzer,timeentry,content)
 
 def addContent_Track_Hash(analyzer,timeentry,content):
-    hash_table=timeentry['mapContent']
+    lst=timeentry['lstContent']
     track_id=content['track_id']
-    entry=mp.get(hash_table,track_id)
-    if entry is None:
-        entry={'track_id':None,'lstContent':None}
-        entry['track_id']='track_id'
-        entry['lstContent']=lt.newList('ARRAY_LIST')
-        newentry=entry
-        mp.put(hash_table,track_id,newentry)
-    else:
-        newentry=me.getValue(entry)
-    addTrackIDIndex(newentry,content)
+    dicti_revision={'hashtag':content['hashtag'].lower(),'created_at':content['created_at'],'user_id':content['user_id']}
+    estaono=False
+    for i in lt.iterator(lst):
+        if i==dicti_revision:
+            estaono=True
+    if not estaono:
+        lt.addLast(lst,{'hashtag':content['hashtag'].lower(),'created_at':content['created_at'],'user_id':content['user_id']})
 
-def addTrackIDIndex(entry,content):
-    lst=entry['lstContent']
-    lt.addLast(lst,content)
 
-def newHashTrackTimeEntry(content):
-    entry={'created_at':None,'mapContent':None}
-    entry['created_at']=content['created_at'][11:17]+'00'
-    entry['mapContent']=mp.newMap(numelements=65,
-                                maptype='PROBING',
-                                loadfactor=0.3)
+def newHashTrackIDEntry(content):
+    entry={'track_id':None,'lstContent':None}
+    entry['track_id']=content['track_id']
+    entry['lstContent']=lt.newList('ARRAY_LIST')
     return entry 
