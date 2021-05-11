@@ -398,18 +398,7 @@ def req_5_v_2(analyzer,start_time,end_time):
             elif lamborghini is None: 
                 mp.put(registropy, key, size)
 
-    print('There is a total of '+str(totalreps)+' reproductions between '+start_time+' and '+end_time)
-    print('================================ GENRES SORTED REPRODUCTIONS ================================')
-    print('Metal unique: '+str(me.getValue(mp.get(registropy, 'Metal_unique'))))
-    print('Metal: '+str(me.getValue(mp.get(registropy, 'Metal'))))
-    print('Reggae: '+str(me.getValue(mp.get(registropy, 'Reggae'))))
-    print('Down-tempo: '+str(me.getValue(mp.get(registropy, 'Down-tempo'))))
-    print('Chill-out: '+str(me.getValue(mp.get(registropy, 'Chill-out'))))
-    print('Hip-hop: '+str(me.getValue(mp.get(registropy, 'Hip-hop'))))
-    print('Pop: '+str(me.getValue(mp.get(registropy, 'Pop'))))
-    print('R&B: '+str(me.getValue(mp.get(registropy, 'R&B'))))
-    print('Rock: '+str(me.getValue(mp.get(registropy, 'Rock'))))
-    print('Jazz and Funk: '+str(me.getValue(mp.get(registropy, 'Jazz and Funk'))))
+    
  
     
     totalreps=0
@@ -425,6 +414,18 @@ def req_5_v_2(analyzer,start_time,end_time):
         if 'unique' not in genre:
             totalreps+=repstemp
     
+    print('There is a total of '+str(totalreps)+' reproductions between '+start_time+' and '+end_time)
+    print('================================ GENRES SORTED REPRODUCTIONS ================================')
+    print('Metal unique: '+str(me.getValue(mp.get(registropy, 'Metal_unique'))))
+    print('Metal: '+str(me.getValue(mp.get(registropy, 'Metal'))))
+    print('Reggae: '+str(me.getValue(mp.get(registropy, 'Reggae'))))
+    print('Down-tempo: '+str(me.getValue(mp.get(registropy, 'Down-tempo'))))
+    print('Chill-out: '+str(me.getValue(mp.get(registropy, 'Chill-out'))))
+    print('Hip-hop: '+str(me.getValue(mp.get(registropy, 'Hip-hop'))))
+    print('Pop: '+str(me.getValue(mp.get(registropy, 'Pop'))))
+    print('R&B: '+str(me.getValue(mp.get(registropy, 'R&B'))))
+    print('Rock: '+str(me.getValue(mp.get(registropy, 'Rock'))))
+    print('Jazz and Funk: '+str(me.getValue(mp.get(registropy, 'Jazz and Funk'))))
     
 
     all_videos=hp.newHeap(heap_compare)
