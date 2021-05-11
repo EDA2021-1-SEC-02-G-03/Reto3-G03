@@ -100,6 +100,10 @@ def R_2y3(feature_1, feature_2, analyzer, min_value1,
 def R_4(analyzer, genero, num, min_value, max_value):
     return model.R_4(analyzer, genero, num, min_value, max_value)
 
+def R_5(analyzer,start_time,end_time):
+    return model.req_5_v_2(analyzer,start_time,end_time)
+
+
 def random_selector(lst):
     return model.random_selector(lst)
 
@@ -114,3 +118,5 @@ def convertHour_to_Node(Hour_value):
 
 def videos_carga(analyzer):
     return model.videos_carga(analyzer)
+
+

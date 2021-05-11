@@ -368,14 +368,7 @@ def genre_by_tempo(analyzer,content):
         return genre_list
 
 def req_5_v_2(analyzer,start_time,end_time):
-    '''
-    keys=om.keySet(analyzer['track_hashtags'])
-    values=om.valueSet(analyzer['track_hashtags'])
 
-    for i in lt.iterator(values):
-        for e in lt.iterator(i['lstContent']):
-            print(i['track_id'],e)
-    '''
 
 
 
@@ -404,7 +397,9 @@ def req_5_v_2(analyzer,start_time,end_time):
                 mp.put(registropy, key, lamborghini)
             elif lamborghini is None: 
                 mp.put(registropy, key, size)
- 
+
+    print('There is a total of '+str(totalreps)+' reproductions between '+start_time+' and '+end_time)
+    print('================================ GENRES SORTED REPRODUCTIONS ================================')
     print('Metal unique: '+str(me.getValue(mp.get(registropy, 'Metal_unique'))))
     print('Metal: '+str(me.getValue(mp.get(registropy, 'Metal'))))
     print('Reggae: '+str(me.getValue(mp.get(registropy, 'Reggae'))))
@@ -416,7 +411,7 @@ def req_5_v_2(analyzer,start_time,end_time):
     print('Rock: '+str(me.getValue(mp.get(registropy, 'Rock'))))
     print('Jazz and Funk: '+str(me.getValue(mp.get(registropy, 'Jazz and Funk'))))
  
-
+    
     totalreps=0
     genres=mp.keySet(registropy)
     mayor=''
@@ -429,7 +424,9 @@ def req_5_v_2(analyzer,start_time,end_time):
             mayor=genre
         if 'unique' not in genre:
             totalreps+=repstemp
-    print(mayor,repsmax,totalreps)
+    
+    
+
     all_videos=hp.newHeap(heap_compare)
     for hash_table in lt.iterator(list_of_maps):
         keyset=mp.keySet(hash_table['mapContent'])
@@ -440,9 +437,28 @@ def req_5_v_2(analyzer,start_time,end_time):
                 for video in lt.iterator(videos_list['lstContent']):
                     hp.insert(all_videos,video)
     
-    for i in range(1,10):
+    for i in range(1,11):
         video=hp.delMin(all_videos)
-        print(video['track_id'],lt.size(video['hashtag']),video['hashtag']['elements'])
+        vader_avg=0
+        count=0
+        for hashtag in lt.iterator(video['hashtag']):
+            entry=om.get(analyzer['sentiment_values'],hashtag)
+            if entry is not None:
+                value=me.getValue(entry)
+                lst=value['lstContent']['elements'][0]['vader_avg']
+                if lst!='':
+                    vader_avg+=float(lst)
+                    count+=1
+        if count>0:
+            vader_avg/=count
+        else:
+            vader_avg=0
+        print('TOP '+str(i)+' track: '+video['track_id']+' with '+str(lt.size(video['hashtag']))+' and VADER = '+str(vader_avg))
+        #print(video['track_id'],lt.size(video['hashtag']),video['hashtag']['elements'])
+    
+    
+    
+    
     
 
 
@@ -541,7 +557,7 @@ def newSentimentEntry(row):
     entry['hashtag']=row['hashtag']
     entry['lstContent']=lt.newList('ARRAY_LIST')
     return entry
-
+'''
 def updateDescriptionMaps(map, content, feature):  
     Instrumental_value = float(content[feature])
     exist_value = om.contains(map, Instrumental_value)
@@ -553,8 +569,8 @@ def updateDescriptionMaps(map, content, feature):
         actual_value = newInstrumentEntry(content, Instrumental_value)
         om.put(map, Instrumental_value, actual_value)
     lt.addLast(actual_value['lstContent'], content)
-    
-
+'''
+'''
 def updateGeneralGeneros(map, content):
     Tempo_value = float(content['tempo'])
     entry = om.get(map, Tempo_value)
@@ -575,6 +591,7 @@ def updateGeneros(map, content, min_tempo, max_tempo):
         else:
             actual_value = me.getValue(entry)
         lt.addLast(actual_value['lstContent'], content)
+'''
 '''
 def newInstrumentEntry(content, Instrumental_value):
 

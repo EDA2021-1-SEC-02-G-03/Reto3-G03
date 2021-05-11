@@ -226,11 +226,9 @@ while True:
     elif int(inputs[0]) == 7:
         min_hour = input('Ingrese el valor mínimo de la hora del día: ')
         max_hour = input('Ingrese el valor máximo de la hora del día: ')
-        min_hour = controller.convertHour_to_Node(min_hour)
-        max_hour = controller.convertHour_to_Node(max_hour) 
-        print(min_hour, max_hour)
-        total_songs = controller.R_5(cont, min_hour, max_hour)
-        print(total_songs)
+        controller.R_5(cont,min_hour,max_hour)
+        #total_songs = controller.R_5(cont, min_hour, max_hour)
+        #print(total_songs)
 
 
     else:
