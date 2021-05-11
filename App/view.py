@@ -23,7 +23,9 @@
 import config as cf
 import sys
 import controller
+import model
 from DISClib.ADT import list as lt
+from DISClib.DataStructures import bst as bst
 from DISClib.ADT import map as mp
 from DISClib.DataStructures import mapentry as me
 assert cf
@@ -38,6 +40,8 @@ operación solicitada
 content_file = 'context_content_features-small.csv'
 content_file_hash = 'user_track_hashtag_timestamp-small.csv'
 content_file_sentiment = 'sentiment_values.csv'
+hashtags_file = 'user_track_hashtag_timestamp-small.csv'
+sentiment_values_file = 'sentiment_values.csv'
 
 def printMenu():
     print("Bienvenido")
@@ -94,13 +98,19 @@ while True:
     if int(inputs[0]) == 1:
         print("Cargando información de los archivos ....")
         cont = controller.init()
+        controller.loadListGeneros(cont)
+        controller.loadListTempos(cont)
+        
 
     elif int(inputs[0]) == 2:
+        model.updateTempoGenero(cont['tempo_genero'])
+        controller.loadDataSentiment(cont, sentiment_values_file)
+        controller.loadDataHashTrack(cont, hashtags_file)
         controller.loadData(cont, content_file)
         controller.loadListGeneros(cont)
         controller.loadListTempos(cont)
-        controller.loadHashData(cont, content_file_hash)
-        controller.loadSentiment(cont, content_file_sentiment)
+        #controller.loadHashData(cont, content_file_hash)
+        #controller.loadSentiment(cont, content_file_sentiment)
         print('++++ Carga de datos ++++')
         print('-----------------------------------------------------------')
         print('Total de registros de eventos de escucha cargados: ' + str(controller.content_size(cont)))
@@ -138,11 +148,13 @@ while True:
         max_value1, min_value2, max_value2)
         random_tracks = controller.random_selector(unique_tracks[1])
  
+
         print('++++ Req No. 2 results ++++')
         print('Total of unique tracks in the events: ' +str(unique_tracks[0]))
         print('|=== Unique track id ===|')
         for track in lt.iterator(random_tracks):
 
+            #print(track['track_id'])
             print('Track id: '+str(track['track_id']) +str(' with instrumentalness of ')+str(track['energy'])+str(' and tempo of ')+str(track['danceability']))
         print('')
 

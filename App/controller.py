@@ -47,21 +47,21 @@ def loadData(analyzer, content_file):
         model.addContent(analyzer, content)
     return analyzer
 
-def loadHashData(analyzer, content_file):
-    content_file = cf.data_dir + content_file
-    input_file = csv.DictReader(open(content_file, encoding="utf-8"), delimiter=",")
+def loadDataHashTrack(analyzer, hashtags_file):
+    hashtags_file = cf.data_dir + hashtags_file
+    input_file = csv.DictReader(open(hashtags_file, encoding='utf-8'), delimiter=',')
 
     for content in input_file:
-        model.addContent_hash(analyzer, content)
+        model.addContent_Hash(analyzer,content)
     return analyzer
 
-def loadSentiment(analyzer, content_file):
-    content_file = cf.data_dir + content_file
-    input_file = csv.DictReader(open(content_file, encoding="utf-8"), delimiter=",")
-
-    for content in input_file:
-        model.addSentiment(analyzer, content)
+def loadDataSentiment(analyzer, sentiment_values_file):
+    sentiment_values_file = cf.data_dir + sentiment_values_file
+    input_file = csv.DictReader(open(sentiment_values_file, encoding='utf-8'), delimiter=',')
+    for hashtag in input_file:
+        model.addContent_Sentiment(analyzer,hashtag)
     return analyzer
+    
 
 def loadListGeneros(analyzer):
     addNewGenero(analyzer, 'Reggae')
@@ -99,9 +99,6 @@ def R_2y3(feature_1, feature_2, analyzer, min_value1,
 
 def R_4(analyzer, genero, num, min_value, max_value):
     return model.R_4(analyzer, genero, num, min_value, max_value)
-
-def R_5(analyzer, min_hour, max_hour):
-    return model.R_5(analyzer, min_hour, max_hour)
 
 def random_selector(lst):
     return model.random_selector(lst)

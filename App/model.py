@@ -32,6 +32,7 @@ from DISClib.ADT import orderedmap as om
 from DISClib.ADT import map as mp
 from DISClib.DataStructures import mapentry as me
 from DISClib.Algorithms.Sorting import shellsort as sa
+from DISClib.DataStructures import heap as hp
 assert cf
 
 """
@@ -62,6 +63,12 @@ def newAnalyzer():
 
 
     #Binary Trees
+    #analyzer['content_features_req5'] = lt.newList('ARRAY_LIST')
+    analyzer['track_hashtag'] = lt.newList('ARRAY_LIST')
+    analyzer['Sentiment_values'] = lt.newList('ARRAY_LIST')
+
+    #Binary Trees
+    analyzer['time_of_event'] = om.newMap(omaptype='BST')
     analyzer['instrumentalness'] = om.newMap(omaptype='BST')
     analyzer['liveness'] = om.newMap(omaptype='BST')
     analyzer['speechiness'] = om.newMap(omaptype='BST')
@@ -118,22 +125,44 @@ def newAnalyzer():
     analyzer['ferrari'] = mp.newMap(numelements=65,
                                    maptype='PROBING',
                                    loadfactor=0.3)
+    #Árbol Binario Hashtags
+    analyzer['track_hashtags'] = om.newMap(omaptype='BST')
+
+    #Árbol Binario Sentiment
+    analyzer['sentiment_values'] = om.newMap(omaptype='BST')
+
+    #Árbol Binario Llave Tempo Valor Género
+    analyzer['tempo_genero']=om.newMap(omaptype='BST')
+
+    #Arbol Binario Completo Req 5
+    analyzer['hash_generos']=om.newMap(omaptype='BST')
+
+  
+
 
     return analyzer
 
 
 
+        
+        #Update Binary Trees de caracterización
+# Funciones para agregar informacion al catalogo
+def addContent_Hash(analyzer, content):
+    updateTrackHash(analyzer,analyzer['track_hashtags'], content)
+
+def addContent_Sentiment(analyzer, content):
+    updateSentiment(analyzer['sentiment_values'], content)
+
 def addContent(analyzer, content):
-    #Update Binary Trees
-    car = content['user_id']+content['track_id']+content['created_at']
+    #lt.addLast(analyzer['content_features'], content)
 
-    cars = mp.contains(analyzer['ferrari'], car)
+    car=content['user_id']+content['track_id']+content['created_at']
+    cars=mp.contains(analyzer['ferrari'],car)
     if not cars:
-
         lt.addLast(analyzer['content_features'], content)
         mp.put(analyzer['artistas'], content['artist_id'], 0)
         mp.put(analyzer['unique_tracks_init'], content['track_id'], 0)
-        #Update Binary Trees de caracterización
+        #Update Binary Trees
         updateDescriptionMaps(analyzer['instrumentalness'], content, 'instrumentalness')
         updateDescriptionMaps(analyzer['liveness'], content, 'liveness')
         updateDescriptionMaps(analyzer['speechiness'], content, 'speechiness')
@@ -157,9 +186,14 @@ def addContent(analyzer, content):
         #Update Binary Tree Tiem
         updateHash(analyzer['track_hashtag'], content)
         mp.put(analyzer['ferrari'], car, 0)
+        updateTimeOfEvent(analyzer['time_of_event'], content)
+        updateHashGeneros(analyzer,analyzer['hash_generos'],content)
+        
+    
+
     return analyzer
 
-
+'''
 def addContent_hash(analyzer, content):
 
 
@@ -183,8 +217,10 @@ def updateHash(map, content):
         om.put(map, Hour_value, actual_value)
     lt.addLast(actual_value['lstContent'], content)
 
+
 def updateSentiment(map, content):
     pass
+'''
 
 def updateDescriptionMaps(map, content, feature):
 
@@ -232,9 +268,319 @@ def newInstrumentEntry(content, Instrumental_value):
 
     entry = {'Instrument_value': None, 'lstContent':None}
     entry['Instrument_value'] = Instrumental_value
-
     entry['lstContent'] = lt.newList('ARRAY_LIST')
     return entry
+
+        
+
+#BST con Tablas de Hash
+def updateHashGeneros(analyzer,omap,content):
+    time = content['created_at']
+    newtime = time[11:17]+'00'
+    entry = om.get(omap,newtime)
+    if entry is None:
+        timeentry=newHashTimeEntry(content)
+        om.put(omap,newtime,timeentry)
+    else:
+        timeentry=me.getValue(entry)
+    addContent_Hash_Generos(analyzer,timeentry,content)
+
+def addContent_Hash_Generos(analyzer,timeentry,content):
+    hash_table=timeentry['mapContent']
+    generos=genre_by_tempo(analyzer,content)
+    if generos is not None:
+        generos=generos['lstContent']['elements'][0]
+        for i in lt.iterator(generos):
+            entry=mp.get(hash_table,i)
+            if entry is None:
+                entry={'genero':None,'lstContent':None}
+                entry['genero']=i
+                entry['lstContent']=lt.newList('ARRAY_LIST')
+                newentry=entry
+                if i is not None:
+                    mp.put(hash_table,i,newentry)
+            else:
+                newentry=me.getValue(entry)
+            addGenreIndex(analyzer,newentry,content)
+            
+
+def addGenreIndex(analyzer,entry,content):
+    lst0=entry['lstContent']
+    #Encontrar el video en el BST de track hash
+    track_id=content['track_id']
+    user_id=content['user_id']
+    created_at=content['created_at']
+    keytime=created_at[11:17]+'00'
+    entryy=om.get(analyzer['track_hashtags'],content['track_id'])
+    if entryy is not None:
+        value=me.getValue(entryy)
+        hashtags_list=value['lstContent']
+        if 'hashtag' not in content:
+            content['hashtag']=lt.newList('ARRAY_LIST')
+            for i in lt.iterator(hashtags_list):
+                if i['created_at']==content['created_at'] and i['user_id']==content['user_id'] and not lt.isPresent(content['hashtag'],i['hashtag']):
+                    lt.addLast(content['hashtag'],i['hashtag'])
+        elif 'hashtag' in content:
+            for i in lt.iterator(hashtags_list):
+                if i['created_at']==content['created_at'] and i['user_id']==content['user_id'] and not lt.isPresent(content['hashtag'],i['hashtag']):
+                    lt.addLast(content['hashtag'],i['hashtag'])
+
+        lt.addLast(lst0,content)
+        
+'''
+    if entry is not None:
+        value=me.getValue(entry)
+        hashtable=value['mapContent']
+        if mp.contains(hashtable,track_id):
+            if 'hashtag' not in content:
+                content['hashtag']=lt.newList('ARRAY_LIST')
+            entry2=mp.get(hashtable,track_id)
+            value2=me.getValue(entry2)
+            lst1=value2['lstContent']
+            for video in lt.iterator(lst1):
+                if video['user_id']==user_id and type(video['hashtag'])==str and (lt.isPresent(content['hashtag'],video['hashtag'])==False):
+                    entryvader=om.get(analyzer['sentiment_values'],video['hashtag'])
+                    if entryvader is not None:
+                        valuevader=(me.getValue(entryvader))
+                        valuevaderlist=valuevader['lstContent']
+                        element=lt.getElement(valuevaderlist,1)
+                        #lt.addLast(content['hashtag'],video['hashtag'].lower())
+                        vader_avg=element['vader_avg']
+                        if len(vader_avg)>0:
+                            lt.addLast(content['hashtag'],video['hashtag'].lower())
+            lt.addLast(lst0,content)
+'''
+           
+
+def newHashTimeEntry(content):
+    entry={'created_at':None,'mapContent':None}
+    entry['created_at']=content['created_at'][11:17]+'00'
+    entry['mapContent']=mp.newMap(numelements=65,
+                                maptype='PROBING',
+                                loadfactor=0.3)
+    return entry 
+
+def genre_by_tempo(analyzer,content):
+    tempo=str(round(float(content['tempo'])))
+    if float(tempo)>59 and float(tempo)<161:
+        genre_entry=om.get(analyzer['tempo_genero'],tempo)
+        genre_list=me.getValue(genre_entry)
+        return genre_list
+
+def req_5_v_2(analyzer,start_time,end_time):
+    '''
+    keys=om.keySet(analyzer['track_hashtags'])
+    values=om.valueSet(analyzer['track_hashtags'])
+
+    for i in lt.iterator(values):
+        for e in lt.iterator(i['lstContent']):
+            print(i['track_id'],e)
+    '''
+
+
+
+   
+    keys=om.valueSet(analyzer['sentiment_values'])
+ 
+    
+
+    list_of_maps=om.values(analyzer['hash_generos'],start_time,end_time)
+    
+    registropy = mp.newMap(numelements=65,
+                        maptype='PROBING',
+                        loadfactor=0.3)
+
+    for hash_table in lt.iterator(list_of_maps):
+        keyset=mp.keySet(hash_table['mapContent'])
+        for key in lt.iterator(keyset):
+            entry=mp.get(hash_table['mapContent'],key)
+            videos_list=me.getValue(entry)
+            size=lt.size(videos_list['lstContent'])
+            lamborghini = mp.get(registropy, key)
+            
+            if lamborghini is not None: 
+                lamborghini = me.getValue(lamborghini)
+                lamborghini += size
+                mp.put(registropy, key, lamborghini)
+            elif lamborghini is None: 
+                mp.put(registropy, key, size)
+ 
+    print('Metal unique: '+str(me.getValue(mp.get(registropy, 'Metal_unique'))))
+    print('Metal: '+str(me.getValue(mp.get(registropy, 'Metal'))))
+    print('Reggae: '+str(me.getValue(mp.get(registropy, 'Reggae'))))
+    print('Down-tempo: '+str(me.getValue(mp.get(registropy, 'Down-tempo'))))
+    print('Chill-out: '+str(me.getValue(mp.get(registropy, 'Chill-out'))))
+    print('Hip-hop: '+str(me.getValue(mp.get(registropy, 'Hip-hop'))))
+    print('Pop: '+str(me.getValue(mp.get(registropy, 'Pop'))))
+    print('R&B: '+str(me.getValue(mp.get(registropy, 'R&B'))))
+    print('Rock: '+str(me.getValue(mp.get(registropy, 'Rock'))))
+    print('Jazz and Funk: '+str(me.getValue(mp.get(registropy, 'Jazz and Funk'))))
+ 
+
+    totalreps=0
+    genres=mp.keySet(registropy)
+    mayor=''
+    repsmax=0
+    repstemp=0
+    for genre in lt.iterator(genres):
+        repstemp=me.getValue(mp.get(registropy,genre))
+        if repstemp>repsmax:
+            repsmax=repstemp
+            mayor=genre
+        if 'unique' not in genre:
+            totalreps+=repstemp
+    print(mayor,repsmax,totalreps)
+    all_videos=hp.newHeap(heap_compare)
+    for hash_table in lt.iterator(list_of_maps):
+        keyset=mp.keySet(hash_table['mapContent'])
+        for key in lt.iterator(keyset):
+            if key==mayor:
+                entry=mp.get(hash_table['mapContent'],key)
+                videos_list=me.getValue(entry)
+                for video in lt.iterator(videos_list['lstContent']):
+                    hp.insert(all_videos,video)
+    
+    for i in range(1,10):
+        video=hp.delMin(all_videos)
+        print(video['track_id'],lt.size(video['hashtag']),video['hashtag']['elements'])
+    
+
+
+def heap_compare(video1,video2):
+    if lt.size(video1['hashtag'])==lt.size(video2['hashtag']):
+        return 0
+    elif lt.size(video1['hashtag'])<lt.size(video2['hashtag']):
+        return 1
+    else:
+        return -1
+
+
+def updateTempoGenero(omap):
+    tempo=60
+    while tempo<=160:
+        tempolist=lt.newList('ARRAY_LIST')
+        if tempo>=60 and tempo<=90:
+            lt.addLast(tempolist,'Reggae')
+        if tempo>=70 and tempo<=100:
+            lt.addLast(tempolist,'Down-tempo')
+        if tempo>=90 and tempo <=120:
+            lt.addLast(tempolist,'Chill-out')
+        if tempo>=85 and tempo<=115:
+            lt.addLast(tempolist,'Hip-hop')
+        if tempo>=120 and tempo<=125:
+            lt.addLast(tempolist,'Jazz and Funk')
+        if tempo>=100 and tempo<=130:
+            lt.addLast(tempolist,'Pop')
+        if tempo>=60 and tempo<=80:
+            lt.addLast(tempolist,'R&B')
+        if tempo>=110 and tempo<=140:
+            lt.addLast(tempolist,'Rock')
+        if tempo>=100 and tempo<=160:
+            lt.addLast(tempolist,'Metal')
+        if tempo>140 and tempo<=160:
+            lt.addLast(tempolist, 'Metal_unique')
+        entry=om.get(omap,str(tempo))
+        if entry is None:
+            tempoentry=newTempoEntry(str(tempo))
+            om.put(omap,str(tempo),tempoentry)
+        else:
+            tempoentry=me.getValue(entry)
+        lt.addLast(tempoentry['lstContent'],tempolist)
+        tempo+=1
+
+def newTempoEntry(tempo):
+    entry={'tempo':None,'lstContent':None}
+    entry['tempo']=str(tempo)
+    entry['lstContent']=lt.newList('ARRAY_LIST')
+    return entry
+
+
+def updateTimeOfEvent(omap,content):
+    time = content['created_at']
+    newtime = time[11:17]+'00'
+    entry = om.get(omap,newtime)
+    if entry is None:
+        timeentry=newTimeEntry(content)
+        om.put(omap,newtime,timeentry)
+    else:
+        timeentry=me.getValue(entry)
+    addTimeIndex(timeentry,content)
+
+def addTimeIndex(timeentry,content):
+    lst=timeentry['lstContent']
+    lt.addLast(lst,content)
+
+def newTimeEntry(content):
+    entry={'created_at':None,'lstContent':None}
+    entry['created_at']=content['created_at'][11:17]+'00'
+    entry['lstContent']=lt.newList('ARRAY_LIST')
+    return entry 
+
+    
+
+
+
+
+
+def updateHash(omap,content):
+    updateTimeOfEvent(omap,content)
+
+def updateSentiment(omap,row):
+    hashtag=row['hashtag']
+    entry=om.get(omap,hashtag)
+    if entry is None:
+        sentiment_entry=newSentimentEntry(row)
+        om.put(omap,hashtag,sentiment_entry)
+    else:
+        sentiment_entry=me.getValue(entry)
+    lt.addLast(sentiment_entry['lstContent'],row)
+    
+
+def newSentimentEntry(row):
+    entry={'hashtag':None,'lstContent':None}
+    entry['hashtag']=row['hashtag']
+    entry['lstContent']=lt.newList('ARRAY_LIST')
+    return entry
+
+def updateDescriptionMaps(map, content, feature):  
+    Instrumental_value = float(content[feature])
+    exist_value = om.contains(map, Instrumental_value)
+
+    if exist_value:
+        entry = om.get(map, Instrumental_value)
+        actual_value = me.getValue(entry)
+    else:
+        actual_value = newInstrumentEntry(content, Instrumental_value)
+        om.put(map, Instrumental_value, actual_value)
+    lt.addLast(actual_value['lstContent'], content)
+    
+
+def updateGeneralGeneros(map, content):
+    Tempo_value = float(content['tempo'])
+    entry = om.get(map, Tempo_value)
+    if entry is None:
+        actual_value = newTempo(content)
+        om.put(map, Tempo_value, actual_value)
+    else:
+        actual_value = me.getValue(entry)
+    lt.addLast(actual_value['lstContent'], content)
+
+def updateGeneros(map, content, min_tempo, max_tempo):
+    Tempo_value = float(content['tempo'])
+    if Tempo_value >= min_tempo and Tempo_value <= max_tempo:
+        entry = mp.get(map, content['artist_id'])
+        if entry is None:
+            actual_value = newArtist(content)
+            mp.put(map, content['artist_id'], actual_value)
+        else:
+            actual_value = me.getValue(entry)
+        lt.addLast(actual_value['lstContent'], content)
+'''
+def newInstrumentEntry(content, Instrumental_value):
+
+    entry = {'Instrument_value': None, 'lstContent':None}
+    entry['Instrument_value'] = Instrumental_value
+''' 
 
 def newTempo(content):
 
@@ -341,13 +687,6 @@ def R_4(analyzer, genero, num, min_value, max_value):
 
     return total_artists, total_songs, artist_10
 
-def R_5(analyzer, min_hour, max_hour):
-    lst = om.values(analyzer['track_hashtag'], min_hour, max_hour)
-    total_songs = 0
-    for node in lt.iterator(lst):
-
-        total_songs += lt.size(node['lstContent'])
-    return total_songs 
 
 def addNewGenero(analyzer, genero):
     lt.addLast(analyzer['Nombre_generos'], genero)
@@ -390,3 +729,32 @@ def videos_carga(analyzer):
     return events
 
 
+#Carga BST Track Hashtags
+
+def updateTrackHash(analyzer,omap,content):
+    trackid = content['track_id']
+    entry = om.get(omap,trackid)
+    if entry is None:
+        timeentry=newHashTrackIDEntry(content)
+        om.put(omap,trackid,timeentry)
+    else:
+        timeentry=me.getValue(entry)
+    addContent_Track_Hash(analyzer,timeentry,content)
+
+def addContent_Track_Hash(analyzer,timeentry,content):
+    lst=timeentry['lstContent']
+    track_id=content['track_id']
+    dicti_revision={'hashtag':content['hashtag'].lower(),'created_at':content['created_at'],'user_id':content['user_id']}
+    estaono=False
+    for i in lt.iterator(lst):
+        if i==dicti_revision:
+            estaono=True
+    if not estaono:
+        lt.addLast(lst,{'hashtag':content['hashtag'].lower(),'created_at':content['created_at'],'user_id':content['user_id']})
+
+
+def newHashTrackIDEntry(content):
+    entry={'track_id':None,'lstContent':None}
+    entry['track_id']=content['track_id']
+    entry['lstContent']=lt.newList('ARRAY_LIST')
+    return entry 
