@@ -28,6 +28,8 @@ from DISClib.ADT import list as lt
 from DISClib.DataStructures import bst as bst
 from DISClib.ADT import map as mp
 from DISClib.DataStructures import mapentry as me
+import time
+import tracemalloc
 assert cf
 
 
@@ -103,6 +105,13 @@ while True:
         
 
     elif int(inputs[0]) == 2:
+        delta_time = -1.0
+        delta_memory = -1.0
+
+        tracemalloc.start()
+        start_time = controller.getTime()
+        start_memory = controller.getMemory()
+
         model.updateTempoGenero(cont['tempo_genero'])
         controller.loadDataSentiment(cont, sentiment_values_file)
         controller.loadDataHashTrack(cont, hashtags_file)
@@ -121,10 +130,24 @@ while True:
         printVideosCarga(videos)
         print('-------------------------------------------------------------------')
         print('')
+        stop_memory = controller.getMemory()
+        stop_time = controller.getTime()
+        tracemalloc.stop()
+
+        delta_time = stop_time - start_time
+        delta_memory = controller.deltaMemory(start_memory, stop_memory)
+        print('Tiempo[ms]: ', f"{delta_time:.3f}", "-", "Memoria [kB]: ", f"{delta_memory:.3f}")
 
 
 
     elif int(inputs[0]) == 3:
+
+        elta_time = -1.0
+        delta_memory = -1.0
+
+        tracemalloc.start()
+        start_time = controller.getTime()
+        start_memory = controller.getMemory()
 
         feature = input('Ingrese la característica de contenido\n')
         min_value = float(input('Ingrese el valor mínimo de la característica de contenido\n'))
@@ -137,9 +160,24 @@ while True:
         print(feature+' is between '+str(min_value)+' and '+str(max_value))
         print('Total of reproductions: '+str(artist_amount[0])+' ;'+' Total of unique artists: '+str(artist_amount[1]))
         print('--------------------------------------------')
-  
+
+        stop_memory = controller.getMemory()
+        stop_time = controller.getTime()
+        tracemalloc.stop()
+
+        delta_time = stop_time - start_time
+        delta_memory = controller.deltaMemory(start_memory, stop_memory)
+        print('Tiempo[ms]: ', f"{delta_time:.3f}", "-", "Memoria [kB]: ", f"{delta_memory:.3f}")
 
     elif int(inputs[0]) == 4:
+
+        elta_time = -1.0
+        delta_memory = -1.0
+
+        tracemalloc.start()
+        start_time = controller.getTime()
+        start_memory = controller.getMemory()
+
         min_value1 = float(input('Ingrese el valor mínimo de la característica Energy\n'))
         max_value1 = float(input('Ingrese el valor máximo de la careacterística Energy\n'))
         min_value2 = float(input('Ingrese el valor mínimo de la característica Danceability\n'))
@@ -158,7 +196,23 @@ while True:
             print('Track id: '+str(track['track_id']) +str(' with instrumentalness of ')+str(track['energy'])+str(' and tempo of ')+str(track['danceability']))
         print('')
 
+        stop_memory = controller.getMemory()
+        stop_time = controller.getTime()
+        tracemalloc.stop()
+
+        delta_time = stop_time - start_time
+        delta_memory = controller.deltaMemory(start_memory, stop_memory)
+        print('Tiempo[ms]: ', f"{delta_time:.3f}", "-", "Memoria [kB]: ", f"{delta_memory:.3f}")
+
     elif int(inputs[0]) == 5:
+
+        elta_time = -1.0
+        delta_memory = -1.0
+
+        tracemalloc.start()
+        start_time = controller.getTime()
+        start_memory = controller.getMemory()
+
         min_value1 = float(input('Ingrese el valor mínimo del rango para instrumentalness\n'))
         max_value1 = float(input('Ingrese el valor máximo del rango para instrumentalness\n'))
         min_value2 = float(input('Ingrese el valor mínimo del rango para tempo\n'))
@@ -174,8 +228,24 @@ while True:
 
             print('Track id: '+str(track['track_id']) +str(' with instrumentalness of ')+str(track['instrumentalness'])+str(' and tempo of ')+str(track['tempo']))
         print('')
+
+        stop_memory = controller.getMemory()
+        stop_time = controller.getTime()
+        tracemalloc.stop()
+
+        delta_time = stop_time - start_time
+        delta_memory = controller.deltaMemory(start_memory, stop_memory)
+        print('Tiempo[ms]: ', f"{delta_time:.3f}", "-", "Memoria [kB]: ", f"{delta_memory:.3f}")
     
     elif int(inputs[0]) == 6:
+
+        elta_time = -1.0
+        delta_memory = -1.0
+
+        tracemalloc.start()
+        start_time = controller.getTime()
+        start_memory = controller.getMemory()
+
         printGeneros(cont['Nombre_generos'])
         print('')
         print('Escoja una de las siguientes opciones:')
@@ -210,8 +280,7 @@ while True:
 
             print('Total of reproductiosn: '+str(total_reps))
             print('--------------------------------------------')
-            print('')
-                    
+            print('')                    
 
         elif num == '2':
             nuevo_genero = input('Nombre único para el nuevo género musical: ')
@@ -220,13 +289,35 @@ while True:
             controller.addNewGenero(cont, nuevo_genero)
             controller.addNewGenero_Tempo(cont, nuevo_genero, min_value, max_value)
 
+        stop_memory = controller.getMemory()
+        stop_time = controller.getTime()
+        tracemalloc.stop()
 
+        delta_time = stop_time - start_time
+        delta_memory = controller.deltaMemory(start_memory, stop_memory)
+        print('Tiempo[ms]: ', f"{delta_time:.3f}", "-", "Memoria [kB]: ", f"{delta_memory:.3f}")
     
 
     elif int(inputs[0]) == 7:
+
+        elta_time = -1.0
+        delta_memory = -1.0
+
+        tracemalloc.start()
+        start_time = controller.getTime()
+        start_memory = controller.getMemory()
+
         min_hour = input('Ingrese el valor mínimo de la hora del día: ')
         max_hour = input('Ingrese el valor máximo de la hora del día: ')
         controller.R_5(cont,min_hour,max_hour)
+
+        stop_memory = controller.getMemory()
+        stop_time = controller.getTime()
+        tracemalloc.stop()
+
+        delta_time = stop_time - start_time
+        delta_memory = controller.deltaMemory(start_memory, stop_memory)
+        print('Tiempo[ms]: ', f"{delta_time:.3f}", "-", "Memoria [kB]: ", f"{delta_memory:.3f}")
         #total_songs = controller.R_5(cont, min_hour, max_hour)
         #print(total_songs)
 
