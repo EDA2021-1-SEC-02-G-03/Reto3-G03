@@ -405,7 +405,7 @@ def R_2y3(feature_1, feature_2, analyzer, min_value1,
                 lt.addLast(randomness, content)
         #except:
         #    pass
-    return lt.size(unique_tracks), randomness
+    return mp.size(unique_tracks), randomness
 
 def R_4(analyzer, genero, num, min_value, max_value):
     # lst = om.values(analyzer['generos'], 60, 90)
